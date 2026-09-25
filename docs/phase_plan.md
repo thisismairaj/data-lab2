@@ -19,6 +19,7 @@ Approved by the user on 2026-09-25. Scope: 3 days, one engineer, trial accounts,
 | 2 | Build and load `ref.codebook_values` on both (code → meaning lookup) | 1 |
 | 3 | Silver with quarantine, gold. Same logic on both. Check C2 against the codebook. | 4 |
 | 3 | Schema drift check: 3 injected tests (rename, type change, dropped column) on both | 1.5 |
+| 3 | External reproduction check on bronze, both platforms: the Kaggle notebook's filters must give 343,606 then 253,680 rows (class counts 213,703 / 4,631 / 35,346). Already reproduced locally in DuckDB. | 0.5 |
 
 ## Day 3
 | Phase | Work | Est. h |

@@ -54,6 +54,23 @@ Existing Snowflake warehouses found on 2026-09-25 (`SHOW WAREHOUSES`): `COMPUTE_
 - **Nulls.** Fully empty columns per file: 55 / 12 / 5 / 1 / 4. Columns that are over 95% empty (not fully empty): 116 / 70 / 42 / 47 / 67. Most are skip-pattern questions, so empty does not mean bad. Codes such as `7`, `9`, `77`, `88`, `99` mean "don't know / refused / none" and must not be read as numbers.
 - **Keys.** `SEQNO` alone is **not unique** (it restarts per state). `(_STATE, SEQNO)` is unique in all five files. There are **0 full-row duplicates** in any file.
 
+## Reference notebooks (third-party, read 2026-09-25)
+
+Two public notebooks were provided as background. They are used for cross-checking only. No code was copied.
+
+- `diabetes-health-indicators-dataset-notebook.ipynb`: cleans the same 2015 file into 22 columns for machine learning. It is the source of the three CSVs in `Downloads\archive (1)` (253,680 / 253,680 / 70,692 rows, measured).
+- `brfss-cleaning-and-transformation.ipynb`: cleans the **2011** file (9 demographic columns) for plotting. Not the same year, so not comparable to our data.
+
+**Independent check (measured):** applying that notebook's filters to our raw `2015.csv` reproduces its numbers exactly: 441,456 → 343,606 after dropping rows with any blank in its 22 columns → 253,680 after removing "don't know / refused" codes. Its class counts also match (diabetes 35,346, pre-diabetes 4,631, no diabetes 213,703). This confirms our reading of the file. It will be re-run on bronze on both platforms as a validation (see `phase_plan.md`).
+
+**Why our approach differs (deliberate):**
+- That notebook keeps 57.5% of the rows and silently drops 187,776 (42.5%), including 38% of respondents who reported diabetes (57,256 raw → 35,346 kept). The brief forbids silent dropping, so we keep "don't know / refused" as codes and quarantine only rows that fail a rule.
+- It drops `_LLCPWT`, the survey weight, so it cannot produce population prevalence. Ours can.
+- It rounds BMI to a whole number (`.round(0)`). We keep two decimals.
+- It uses a random 50/50 undersample, which is not representative and is not reproducible as written (`random.seed` does not seed `np.random.permutation`).
+
+**Useful ideas we may reuse:** the 2011 notebook's unit handling for `WEIGHT2` / `HEIGHT3` (a leading 9 means metric; height is feet+inches packed as `5xx`). Only needed if we add weight or height to silver, which the contract currently does not.
+
 ## Out of scope for this delivery (Phases 5–7)
 
 To be written after the phase plan is approved.
