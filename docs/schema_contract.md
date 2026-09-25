@@ -85,9 +85,9 @@ Every record ends in exactly one outcome: **clean**, **corrected**, **quarantine
 | W1 | `final_weight` null or ≤ 0 | 0 rows |
 | S1 | `state_fips` not among the 53 codebook codes | NOT MEASURED (53 distinct codes exist in the data; not yet compared to the codebook list) |
 | C1 | A code column holds a value outside the allowed set | 0 expected: for every column, the codebook frequencies sum to 441,456. NOT MEASURED directly. |
-| R1 | `bmi` outside the plausible range. **Range needs a decision.** | See below |
+| R1 | `bmi` outside **12.00–70.00** (inclusive). **Decided 2026-09-25.** BLANK stays NULL and is not a violation. | 1,035 rows (0.23%), all above 70. Measured on the raw data before the build. |
 
-**R1 measured counts** (raw `_BMI5` range is 12.02–99.95; 36,398 BLANK are NULL, not violations):
+**R1 alternatives that were considered** (raw `_BMI5` range is 12.02–99.95; 36,398 BLANK are NULL, not violations):
 
 | Range kept | Rows quarantined | % of 441,456 |
 |---|---|---|
@@ -103,7 +103,7 @@ Every record ends in exactly one outcome: **clean**, **corrected**, **quarantine
 | Check | Threshold |
 |---|---|
 | clean + corrected + quarantined + rejected = input rows | Exact |
-| Quarantine rate | Under the threshold we document (brief metric says 0.1%). With R1 = 12–70 it would be 0.23% and would fail. |
+| Quarantine rate | Under **0.5%** for this dataset (decided 2026-09-25). The brief's general metric is 0.1%, so this is a documented deviation. Expected: 0.23% (R1 only), and it must be re-measured after the build. |
 | Silver schema matches this contract | Exact |
 | Primary key unique | No duplicates |
 | Both platforms: silver row counts and per-column null counts | Row counts identical; null rate within 0.01% |
@@ -128,6 +128,6 @@ Definition choices (ours, so they can be challenged): code 2 (pregnancy only) an
 Measured `diabetes_code` counts in 2015: 3 → 372,104 · 1 → 57,256 · 4 → 7,690 · 2 → 3,608 · 7 → 598 · 9 → 193 · NULL → 7.
 
 ## Open decisions
-1. **R1 BMI range.** It decides whether the quarantine table has real content, and whether the 0.1% gate holds.
+1. ~~R1 BMI range~~ Decided: 12.00–70.00, gate 0.5%.
 2. **Row-level quarantine.** A quarantined record disappears from silver and gold entirely, even if only its BMI is doubtful.
 3. **Guam (66) and Puerto Rico (72)** are kept in gold with the 50 states + DC.
