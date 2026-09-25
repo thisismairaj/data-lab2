@@ -15,9 +15,16 @@ The brief requires both platforms on the same cloud and region. Measured 2026-09
 | Platform | Cloud | Region | How it was measured |
 |---|---|---|---|
 | Databricks | AWS | us-east-2 (Ohio) | `databricks metastores summary` on the saved workspace login (`dbc-41ec11e5-6bda`): `cloud: aws`, `region: us-east-2`, `global_metastore_id: aws:us-east-2:...`. Independently confirmed by the user with `current_metastore()` in a notebook: `aws:us-east-2:47bb06d4-e613-49d8-87b4-d06d7ae92209` (same ID). |
-| Snowflake | NOT MEASURED | NOT MEASURED | No Snowflake login is saved on this machine. Needs `SELECT CURRENT_REGION()` from the trial account. |
+| Snowflake | AWS | ap-south-1 (Mumbai) | `SELECT CURRENT_REGION()` via `snow sql -c trial` on 2026-09-25: `AWS_AP_SOUTH_1`. Account `vsieues-oq50575`, Snowflake 10.34.101. |
 
-Target: Snowflake on `AWS_US_EAST_2`. A Snowflake account's region cannot be changed after signup. If the trial is elsewhere, a new trial in the matching region is needed, or the mismatch is recorded here as a deviation.
+**MISMATCH: same cloud (AWS), different regions (Ohio vs Mumbai).** A Snowflake account's region cannot be changed after signup. Decision: PENDING (options below).
+
+| Option | Effect |
+|---|---|
+| A. New Snowflake trial in AWS US East (Ohio) | Regions match. Costs one more signup. |
+| B. Keep both as they are, record as a deviation | Fastest. Loads from this laptop and the Day 3 pandas client depend on distance to each region, so those timings are not comparable. Only in-platform timings (query time inside the warehouse or cluster) stay fair. |
+
+Existing Snowflake warehouses found on 2026-09-25 (`SHOW WAREHOUSES`): `COMPUTE_WH` (X-Small, auto-suspend 300 s), `SNOWFLAKE_LEARNING_WH` (X-Small, 300 s), `SYSTEM$STREAMLIT_NOTEBOOK_WH` (X-Small, 60 s). The brief requires 60 s on every warehouse, so two need changing in Phase 1. All were SUSPENDED.
 
 ## Deviations from the brief
 
