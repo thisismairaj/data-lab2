@@ -14,7 +14,7 @@ The brief requires both platforms on the same cloud and region. Measured 2026-09
 
 | Platform | Cloud | Region | How it was measured |
 |---|---|---|---|
-| Databricks | AWS | us-east-2 (Ohio) | `databricks metastores summary` on the saved workspace login (`dbc-41ec11e5-6bda`): `cloud: aws`, `region: us-east-2`, `global_metastore_id: aws:us-east-2:...` |
+| Databricks | AWS | us-east-2 (Ohio) | `databricks metastores summary` on the saved workspace login (`dbc-41ec11e5-6bda`): `cloud: aws`, `region: us-east-2`, `global_metastore_id: aws:us-east-2:...`. Independently confirmed by the user with `current_metastore()` in a notebook: `aws:us-east-2:47bb06d4-e613-49d8-87b4-d06d7ae92209` (same ID). |
 | Snowflake | NOT MEASURED | NOT MEASURED | No Snowflake login is saved on this machine. Needs `SELECT CURRENT_REGION()` from the trial account. |
 
 Target: Snowflake on `AWS_US_EAST_2`. A Snowflake account's region cannot be changed after signup. If the trial is elsewhere, a new trial in the matching region is needed, or the mismatch is recorded here as a deviation.
