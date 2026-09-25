@@ -26,7 +26,7 @@ Power BI Desktop is installed on this machine (found `PBIDesktop.exe`). I cannot
 | 1. Platform scorecard | Did both platforms do the same work, and how did they compare? | Row-count cards per layer per platform with a match check; load time bars; cost bars; drift test table; external client steps and seconds |
 | 2. Data quality | What was wrong with the data, and what did we do about it? | Quarantine rows by rule; corrections by type; "don't know / refused" share per column |
 | 3. Diabetes by state | What share of adults has diabetes in each state? | Map or ranked bars (weighted %); national card; sample size per state; caveat text box |
-| 4. Who has diabetes (optional) | How does it vary by age, sex, income? | Only if we add the extra gold table (decision pending) |
+| 4. Who has diabetes | How does it vary by age, sex, income? | **Dropped.** Decision 2026-09-25: keep diabetes-by-state only (option A), no extra gold table. |
 
 ## Steps
 
