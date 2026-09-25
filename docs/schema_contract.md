@@ -17,6 +17,7 @@ All counts were measured on 2026-09-25 with DuckDB on the local file. Anything n
 | silver | `silver.brfss_clean`: the 18 contract columns below, typed and validated | Only records that pass every rule (or are corrected, and flagged) |
 | quarantine | `silver.brfss_quarantine`: one row per failed record, with rule and reason | Nothing is dropped without a row here |
 | gold | `gold.diabetes_prevalence_state` | Built only from silver. Users query gold, never bronze. |
+| reference | `ref.codebook_values`: code → meaning lookup from the codebook | Loaded once, identical on both platforms. See below. |
 
 Bronze load metadata (added by our loader, not in the source): `_source_file`, `_source_row_number`, `_run_id`, `_loaded_at`.
 
@@ -46,6 +47,21 @@ Types are Databricks / Snowflake. Code columns keep the **raw code** (including 
 | 18 | `_run_id` | loader | STRING | Which pipeline run produced the row |
 
 **Primary key:** (`state_fips`, `survey_year`, `seqno`). Measured on 2015: `(_STATE, SEQNO)` is unique (0 duplicates), and there are 0 full-row duplicates.
+
+## Reference table: `ref.codebook_values`
+
+The code → meaning mapping from `docs/codebook15_llcp.md`, loaded as a table so gold and Power BI can show "Yes / No" instead of 1 / 3, and so silver can be checked against the source document.
+
+| Column | Type | Meaning |
+|---|---|---|
+| `variable` | STRING | Source variable name, e.g. `DIABETE3` |
+| `code` | STRING | The code as printed in the codebook: `1`, `77`, `BLANK`, or a range such as `1 - 30` or `HIDDEN`. Kept as text because it is not always a number. |
+| `label` | STRING | The meaning as printed, e.g. `Yes` |
+| `source_frequency` | BIGINT | Rows with that code in `2015.csv`, as stated in the codebook. NULL where the codebook gives none. |
+
+Generated from `docs/codebook15_llcp.json` by a script in `scripts/`, so it is reproducible. The seed file will be `config/codebook_values.csv`. Row count: NOT MEASURED until generated (the JSON holds 1,882 value rows across 330 variables).
+
+Check C2 (ties silver to the codebook): for each of the 13 code columns, `count(silver) + count(quarantined)` per code must equal `source_frequency`. A mismatch means rows were lost or a code was changed. Result: NOT MEASURED.
 
 ## Rules
 
