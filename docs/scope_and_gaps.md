@@ -32,6 +32,18 @@ The brief requires both platforms on the same cloud and region. Measured 2026-09
 
 Existing Snowflake warehouses found on 2026-09-25 (`SHOW WAREHOUSES`): `COMPUTE_WH` (X-Small, auto-suspend 300 s), `SNOWFLAKE_LEARNING_WH` (X-Small, 300 s), `SYSTEM$STREAMLIT_NOTEBOOK_WH` (X-Small, 60 s). The brief requires 60 s on every warehouse, so two need changing in Phase 1. All were SUSPENDED.
 
+## Databricks compute findings (Phase 1, measured 2026-09-25)
+
+| Brief asks for | What we found | Status |
+|---|---|---|
+| All-purpose cluster and job cluster, runtime pinned | `databricks clusters list` returns none. Free Edition is documented as serverless-only with no custom compute ([Databricks docs](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)). Our workspace matches that pattern, but the edition is **not confirmed** by any API call. | Not possible as written. Deviation. |
+| Cluster policies capping node count and instance type | Built-in policies are listed, but there are no clusters to apply them to | Not applicable. Deviation. |
+| Auto-termination (15 min on clusters) | The one SQL warehouse (`Serverless Starter Warehouse`, 2X-Small, PRO, serverless) has **auto-stop 10 minutes**. An edit to 1 minute was refused: `Editing warehouse is not available to you.` The warehouse stayed STOPPED and unchanged. | 10 min is under the brief's 15, but not equal to Snowflake's 60 s. Cannot be changed. Deviation for parity. |
+| DBU tracking | 2X-Small is said to use 4 DBU per hour (Databricks community answer, not an official page). Usage records not yet read. | NOT MEASURED |
+| Create separate warehouses for ingestion and query (Snowflake side) | Databricks Free Edition cannot create additional warehouses (same docs page). One warehouse serves both. | Deviation. |
+
+Consequence for the comparison: idle time after each query costs more on Databricks (10 min) than on Snowflake (60 s after we change it), so cost figures must be read together with these settings.
+
 ## Deviations from the brief
 
 | # | Brief says | What we have | Impact |
