@@ -36,10 +36,10 @@ Existing Snowflake warehouses found on 2026-09-25 (`SHOW WAREHOUSES`): `COMPUTE_
 
 | Brief asks for | What we found | Status |
 |---|---|---|
-| All-purpose cluster and job cluster, runtime pinned | `databricks clusters list` returns none. Free Edition is documented as serverless-only with no custom compute ([Databricks docs](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)). Our workspace matches that pattern, but the edition is **not confirmed** by any API call. | Not possible as written. Deviation. |
+| All-purpose cluster and job cluster, runtime pinned | `databricks clusters list` returns none. Free Edition is documented as serverless-only with no custom compute ([Databricks docs](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)). Our workspace matches that pattern, and **the user confirmed in the UI on 2026-09-25 that it is Free Edition**. | Not possible as written. Deviation. |
 | Cluster policies capping node count and instance type | Built-in policies are listed, but there are no clusters to apply them to | Not applicable. Deviation. |
 | Auto-termination (15 min on clusters) | The one SQL warehouse (`Serverless Starter Warehouse`, 2X-Small, PRO, serverless) has **auto-stop 10 minutes**. An edit to 1 minute was refused: `Editing warehouse is not available to you.` The warehouse stayed STOPPED and unchanged. | 10 min is under the brief's 15, but not equal to Snowflake's 60 s. Cannot be changed. Deviation for parity. |
-| DBU tracking | 2X-Small is said to use 4 DBU per hour (Databricks community answer, not an official page). Usage records not yet read. | NOT MEASURED |
+| DBU tracking | 2X-Small is said to use 4 DBU per hour (Databricks community answer, not an official page). **`system.billing.usage` does not exist on this workspace** (`TABLE_OR_VIEW_NOT_FOUND`, 2026-09-25), so DBU use cannot be read from billing tables. Free Edition has no bill; usage is a daily quota. | Databricks cost (metrics C1, C2, C4) is **NOT MEASURABLE** here. Report the 4 DBU/hour rate as an unverified figure only, never as a measurement. |
 | Create separate warehouses for ingestion and query (Snowflake side) | Databricks Free Edition cannot create additional warehouses (same docs page). One warehouse serves both. | Deviation. |
 
 Consequence for the comparison: idle time after each query costs more on Databricks (10 min) than on Snowflake (60 s after we change it), so cost figures must be read together with these settings.

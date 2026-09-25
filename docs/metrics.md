@@ -88,6 +88,8 @@ Cost per 100M rows is **not reported** as a measurement. At 441,456 rows it woul
 | C3 | `idle_cost_per_day` | Cost with zero queries over a full day | Near zero | NOT MEASURED. Needs a full idle day. Recorded as a gap if time does not allow. |
 | C4 | `budget_consumed_pct` | Trial credits used ÷ trial credits granted | Under 80% | NOT MEASURED |
 
+**Databricks cost is not measurable on this workspace.** Checked 2026-09-25: `system.billing.usage` does not exist on the Free Edition workspace. C1, C2 and C4 are therefore reported as NOT MEASURABLE for Databricks, not NOT MEASURED. Only Snowflake cost can be read. The comparison must say this.
+
 **Cost timing risk.** Usage views on both platforms can lag by hours, and Databricks billing tables may not exist on Free Edition. So loads run on Day 2 and cost is read on Day 3. Anything still missing shows as NOT MEASURED, never estimated.
 
 ### External client (Phase 4 lite)

@@ -19,3 +19,13 @@ Each concept in 2–3 lines. Newest at the bottom.
 **Fixed-width origin.** The codebook's "Column" numbers are positions in the original fixed-width text file, not positions in our CSV. Ignore them for loading.
 
 **Verifying a conversion.** When converting the PDF to Markdown, I did not trust it by eye. I checked that the variable count matched the CSV's 330 columns and that each variable's frequencies added up to 441,456 rows. The first two attempts failed those checks and revealed layout cases I would have missed.
+
+## Day 1 — Databricks Phase 1
+
+**Serverless cold start.** The SQL warehouse was STOPPED, so the first `SELECT 1` took 11.8 s on the server. The same query warm took 0.785 s. Real-life example: a taxi you have to call versus one already waiting. That gap is the "cold start penalty" the brief asks for. It costs the user waiting time, and it is billed compute time too.
+
+**Server time vs client time.** The platform records how long a query ran (server time). Your script sees that plus network and tool overhead (client time). Server time is the fair number for comparing platforms. Client time depends on where your laptop is. Our first client timings came from the CLI wall clock, so they include process start-up and are marked PROVISIONAL.
+
+**Free Edition limits are real deviations.** No clusters, no cluster policies, one warehouse that cannot be edited, and no `system.billing.usage` table. The brief assumes all of these exist. We record each as a gap, not a workaround.
+
+**Cost can be unmeasurable.** Not every platform exposes its bill. "NOT MEASURED" means we haven't looked yet. "NOT MEASURABLE" means we looked and the data does not exist. The report must not blur the two.
