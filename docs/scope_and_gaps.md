@@ -3,6 +3,12 @@
 Status: DRAFT after Step 1 (dataset review). Phase scope is not yet approved.
 Every number below was measured on 2026-09-25 by profiling the local files with DuckDB (all columns read as text, so nothing was coerced).
 
+## Scope change (2026-09-25, user decision): 2015 only
+
+The pipeline uses **`2015.csv` only** (441,456 rows, 330 columns). 2011–2014 stay out of scope. The Step 1 profile below covers all five years and is kept for reference. The rules in `schema_contract.md` use 2015 numbers only. Findings that only affected other years (bad dates in 2011/2012/2014, the `DISPCODE` 110→1100 vocabulary change, 2011's blank `DIABETE3` values) do not apply to 2015.
+
+Effect on the brief: even less data (441,456 rows, 0.44% of the 100M target), and no cross-year schema drift to detect. The 3 injected drift tests (rename, type change, dropped column) become the only drift evidence.
+
 ## Dataset used
 
 `C:\Users\muham\Downloads\archive` (the path in the request, `D:\data-eng\archive`, does not exist).
@@ -31,7 +37,7 @@ Existing Snowflake warehouses found on 2026-09-25 (`SHOW WAREHOUSES`): `COMPUTE_
 | # | Brief says | What we have | Impact |
 |---|-----------|--------------|--------|
 | D1 | Primary dataset must be on **both marketplaces** (Snowflake Marketplace and Databricks Marketplace), verified before committing | A **local archive** from Downloads. Not listed on either marketplace, as far as we checked. NOT VERIFIED on the marketplaces themselves. | No marketplace mount, no listing-to-first-query time, no Delta Sharing / Snowpipe ingestion test. Data is loaded from files to both platforms instead (same source on both sides, so the comparison still holds). |
-| D2 | Primary dataset **over 100M rows** | **2,380,047 rows** in total (2011: 506,467 · 2012: 475,687 · 2013: 491,773 · 2014: 464,664 · 2015: 441,456). About 2.4% of the target. | "Ingestion cost per 100M rows" must be extrapolated from a small load. Extrapolation is an estimate, not a measurement, and must be labelled as such. |
+| D2 | Primary dataset **over 100M rows** | **441,456 rows** (2015 only, by scope decision). All five years together are 2,380,047 rows (2011: 506,467 · 2012: 475,687 · 2013: 491,773 · 2014: 464,664 · 2015: 441,456). About 0.44% of the target for 2015 alone. | "Ingestion cost per 100M rows" must be extrapolated from a small load. Extrapolation is an estimate, not a measurement, and must be labelled as such. |
 | D3 | Primary has an "update cadence" | Static historical files. No updates. | Freshness lag: NOT APPLICABLE. |
 | D4 | Secondary dataset is semi-structured: nested fields, variable schema per record | `2015_formats.json` is a **value-label codebook** (299 variables → code → label, 2 levels deep, 2015 only). It is nested, but it is a lookup table, not record-level data. | Usable to decode values in gold. It does not test "variable schema between records". This is a partial fit only. |
 | D5 | Stretch dataset: unstructured | `codebook15_llcp.pdf` exists (6.9 MB). Not extracted. | Stretch is dropped. The brief marks it optional. |
