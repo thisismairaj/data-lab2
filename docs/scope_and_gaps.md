@@ -8,6 +8,17 @@ Every number below was measured on 2026-09-25 by profiling the local files with 
 `C:\Users\muham\Downloads\archive` (the path in the request, `D:\data-eng\archive`, does not exist).
 CDC BRFSS survey, 2011–2015: five yearly CSVs, one `2015_formats.json`, one codebook PDF.
 
+## Cloud and region (Phase 1 research: "region decided")
+
+The brief requires both platforms on the same cloud and region. Measured 2026-09-25:
+
+| Platform | Cloud | Region | How it was measured |
+|---|---|---|---|
+| Databricks | AWS | us-east-2 (Ohio) | `databricks metastores summary` on the saved workspace login (`dbc-41ec11e5-6bda`): `cloud: aws`, `region: us-east-2`, `global_metastore_id: aws:us-east-2:...` |
+| Snowflake | NOT MEASURED | NOT MEASURED | No Snowflake login is saved on this machine. Needs `SELECT CURRENT_REGION()` from the trial account. |
+
+Target: Snowflake on `AWS_US_EAST_2`. A Snowflake account's region cannot be changed after signup. If the trial is elsewhere, a new trial in the matching region is needed, or the mismatch is recorded here as a deviation.
+
 ## Deviations from the brief
 
 | # | Brief says | What we have | Impact |
