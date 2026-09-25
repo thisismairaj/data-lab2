@@ -85,7 +85,7 @@ Every record ends in exactly one outcome: **clean**, **corrected**, **quarantine
 | W1 | `final_weight` null or ≤ 0 | 0 rows |
 | S1 | `state_fips` not among the 53 codebook codes | NOT MEASURED (53 distinct codes exist in the data; not yet compared to the codebook list) |
 | C1 | A code column holds a value outside the allowed set | 0 expected: for every column, the codebook frequencies sum to 441,456. NOT MEASURED directly. |
-| R1 | `bmi` outside **12.00–70.00** (inclusive). **Decided 2026-09-25.** BLANK stays NULL and is not a violation. | 1,035 rows (0.23%), all above 70. Measured on the raw data before the build. |
+| R1 | `bmi` outside **12.00–70.00** (inclusive). **Decided 2026-09-25, explicitly approved by the user (range 12–70 and the 0.5% gate).** BLANK stays NULL and is not a violation. | 1,035 rows (0.23%), all above 70. Measured on the raw data before the build. |
 
 **R1 alternatives that were considered** (raw `_BMI5` range is 12.02–99.95; 36,398 BLANK are NULL, not violations):
 
