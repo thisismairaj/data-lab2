@@ -117,7 +117,9 @@ One row per `state_fips` (expected 53).
 | `state_fips`, `state_name` | State name decoded from the codebook `_STATE` table |
 | `valid_respondents` | Rows with `diabetes_code` in (1, 2, 3, 4) |
 | `diabetes_yes` | Rows with `diabetes_code` = 1 |
-| `prevalence_weighted_pct` | 100 × Σ`final_weight` where code = 1 ÷ Σ`final_weight` where code in (1, 2, 3, 4) |
+| `weighted_yes_sum` | Σ`final_weight` where code = 1. Stored so a dashboard can add states up correctly (percentages cannot be averaged). |
+| `weighted_valid_sum` | Σ`final_weight` where code in (1, 2, 3, 4) |
+| `prevalence_weighted_pct` | 100 × `weighted_yes_sum` ÷ `weighted_valid_sum` |
 | `prevalence_unweighted_pct` | 100 × `diabetes_yes` ÷ `valid_respondents`, shown so the effect of weighting is visible |
 | `excluded_dont_know_refused_blank` | Rows with `diabetes_code` 7, 9 or NULL. Reported, never imputed. |
 
