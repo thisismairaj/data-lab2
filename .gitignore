@@ -1,0 +1,18 @@
+# secrets: never commit
+.env
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# data: raw files live outside the repo; keep accidental copies out
+data/
+*.csv
+*.parquet
+*.duckdb
+
+# OS / editor
+.DS_Store
+Thumbs.db
