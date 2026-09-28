@@ -40,9 +40,33 @@ Quarantine rules limited to D1-D3, W1, R1 (the ones that actually fire in this d
 S1, C1, K1 left out of this demo; same reasoning as the manual build, just not re-implemented
 here to save time.
 
-## Next: incremental load + real schema drift test
-`2014.csv` is being added to the same landing folder (previously confirmed missing 2 columns
-that 2015 has: `BPHIGH4`, `TOLDHI2` - see docs/scope_and_gaps.md) to observe:
-1. Does bronze grow by exactly 2014's row count, or does it reprocess 2015 too (checkpoint working correctly)?
-2. Does `schemaEvolutionMode => 'addNewColumns'` handle 2014's missing columns gracefully, or fail?
-Results recorded here once run.
+## Incremental load + real schema drift test (2014.csv added to the same folder)
+
+**Incremental ingestion: worked correctly.** Bronze grew from 441,456 to 906,120
+(441,456 + 464,664 exact) - 2015 was not reprocessed, confirmed per `_source_file`.
+
+**Schema evolution: worked correctly, and caught mid-run.** Adding 2014.csv (76 columns
+2015 doesn't have; missing 2 columns 2015 does have - `BPHIGH4`, `TOLDHI2`) triggered the
+engine to detect a schema change *during* the bronze flow's execution, stop that flow,
+correctly **skip every downstream table** rather than run them against a half-changed
+bronze, then **automatically cancel and restart** the whole update under cause
+`SCHEMA_CHANGE`. The restart succeeded: `BPHIGH4`/`TOLDHI2` now exist as real columns,
+NULL for every 2014 row (which never had them), populated for 2015 rows.
+
+**Bug found via the verification query, not assumed away.** `02_silver_staged.sql`
+hardcoded `2015 AS survey_year` (correct for the original 2015-only build, silently wrong
+once 2014 landed - every 2014 row was mislabeled as 2015). Caught because gold-by-year
+showed only one year despite two years of source data. Fixed: `survey_year` is now
+derived from `_source_file` via regex, not a constant.
+
+**Final state, both years correct:**
+
+| Table | 2014 | 2015 | Total |
+|---|---|---|---|
+| `silver_clean` | 464,544 | 440,421 (exact match to the Free Edition manual build) | 904,965 |
+| `silver_quarantine` | 120 | 1,035 | 1,155 |
+| `gold_diabetes_prevalence_state` | 53 rows | 53 rows | 106 |
+
+Reconciliation: `904,965 + 1,155 = 906,120` = bronze total, exact.
+Alabama sample: 12.94% (2014) vs 13.46% (2015) weighted - close, not identical, as real
+year-over-year data should look.

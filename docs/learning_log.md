@@ -131,3 +131,19 @@ running things in a specific order.
 the warehouse ("Editing warehouse is not available to you") and had zero clusters. Same
 edit on the trial workspace succeeded immediately, and `databricks pipelines create`
 (which needs its own serverless pipeline compute) worked without any block.
+
+## Day (2026-09-28) — incremental load + a real bug caught by verification
+
+**Adding a second year of data mid-pipeline is a genuinely different test than building
+from scratch.** The pipeline's own schema-drift handling worked well without any help:
+detected the change mid-flow, stopped that flow, skipped every downstream table rather
+than cascade bad data, then auto-restarted itself. That's the engine doing exactly what
+a hand-built pipeline would need explicit code to do.
+
+**The bug was mine, not the engine's, and the habit of verifying caught it.** I'd
+hardcoded `survey_year = 2015` when the pipeline was genuinely 2015-only; extending it to
+two years without revisiting that line silently mislabeled every 2014 row as 2015. It
+looked fine at a glance (pipeline succeeded, row counts summed correctly) - only the
+gold-by-year breakdown exposed it, because "53 rows, not ~106" was the wrong shape for
+two years of data. Lesson: a pipeline succeeding and totals reconciling is necessary but
+not sufficient - the *shape* of the output also needs a sanity check, not just the count.

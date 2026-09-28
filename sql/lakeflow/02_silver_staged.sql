@@ -16,7 +16,12 @@ COMMENT 'Typed and corrected, before the clean/quarantine split'
 AS
 SELECT
   lpad(CAST(CAST(_STATE AS DOUBLE) AS INT), 2, '0')  AS state_fips,   -- Z1
-  2015                                                AS survey_year,
+  -- BUG FIX 2026-09-28: this was hardcoded '2015 AS survey_year', copied from the
+  -- Free-Edition build which was genuinely 2015-only. Once 2014.csv landed in the same
+  -- folder, every 2014 row was silently mislabeled as survey_year=2015 - caught via the
+  -- gold-by-year verification query, not before. Derived from the filename instead, since
+  -- _source_file is already tracked per row from bronze.
+  CAST(regexp_extract(_source_file, '(\\d{4})', 1) AS INT) AS survey_year,
   CAST(CAST(SEQNO AS DOUBLE) AS BIGINT)               AS seqno,
   to_date(
     CASE WHEN regexp_replace(IDATE, "^b'|'$", '') LIKE ' %'                     -- D2
