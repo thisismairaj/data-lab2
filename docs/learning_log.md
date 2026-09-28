@@ -193,3 +193,14 @@ exactly:** bronze 441,456=441,456, silver 440,421=440,421, quarantine 1,035=1,03
 rule R1 on both), gold 53=53 states, national weighted prevalence 10.5%=10.5%. Same rules,
 same data, two different platforms, identical output - this is the actual proof the
 pipeline logic is platform-independent, not an accident of one build happening to work.
+
+## Day (2026-09-28) — compounding risk view
+
+Collapsed BMI/smoking/exercise to binary flags on purpose (raw codes would give up to 80
+tiny cells - the brief's own "small-cell suppression" concern, made concrete). Result: a
+clean 2x2x2 = 8 cells, all large enough to trust (none needed suppression), rolling up to
+a simple 0-3 risk factor count with a monotonic staircase: 6.15% -> 12.92% -> 18.60% ->
+21.07%. The three-risk-factor group has 3.4x the zero-risk-factor group's prevalence -
+the single most compelling number this project has produced, precisely because it
+compounds three ordinary findings (obesity, smoking, inactivity) into one comparison
+instead of showing each in isolation.
