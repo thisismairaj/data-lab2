@@ -172,3 +172,24 @@ shared utility, not per-platform from memory.
 Snowflake and Databricks now agree exactly, loaded via each platform's own named method
 (`COPY INTO` vs `read_files`), same raw byte-for-byte values (`_STATE='1.0'`,
 `IDATE="b'01292015'"` on both sides).
+
+## Day (2026-09-28) — Snowflake Phase 3: full row-count and gold parity with Databricks
+
+**Two real SQL dialect bugs found, both fixed and documented in the SQL comments:**
+1. Snowflake has no `FILTER (WHERE ...)` clause on aggregates (Databricks/Spark supports
+   it) - real syntax error, not a typo. Fixed with the portable `COUNT(CASE WHEN...THEN 1
+   END)` / `SUM(CASE WHEN...THEN x END)` pattern instead.
+2. Snowflake's `CONCAT_WS` returns NULL if ANY argument is NULL - Databricks/Spark's
+   version skips NULLs. Tested directly: `CONCAT_WS(',', NULL, 'X', NULL)` gives NULL in
+   Snowflake, would give `'X'` in Databricks. Fixed with `ARRAY_TO_STRING(
+   ARRAY_CONSTRUCT_COMPACT(...), ',')`, which does drop NULLs.
+
+Both are the kind of thing that looks like it should "just work" the same everywhere in
+SQL and doesn't - worth remembering for any future cross-platform SQL work, not just this
+project.
+
+**The comparison the whole brief is actually about now has real numbers, and they match
+exactly:** bronze 441,456=441,456, silver 440,421=440,421, quarantine 1,035=1,035 (all
+rule R1 on both), gold 53=53 states, national weighted prevalence 10.5%=10.5%. Same rules,
+same data, two different platforms, identical output - this is the actual proof the
+pipeline logic is platform-independent, not an accident of one build happening to work.
