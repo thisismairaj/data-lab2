@@ -79,13 +79,13 @@ Every record ends in exactly one outcome: **clean**, **corrected**, **quarantine
 ### Quarantined (no safe fix, never guessed)
 | ID | Rule | Measured in 2015 |
 |---|---|---|
-| D3 | `IDATE` is not a real calendar date | 0 rows |
-| D4 | Interview date year not 2015 or 2016 | 0 rows |
-| K1 | Duplicate primary key | 0 rows |
-| W1 | `final_weight` null or ≤ 0 | 0 rows |
-| S1 | `state_fips` not among the 53 codebook codes | NOT MEASURED (53 distinct codes exist in the data; not yet compared to the codebook list) |
-| C1 | A code column holds a value outside the allowed set | 0 expected: for every column, the codebook frequencies sum to 441,456. NOT MEASURED directly. |
-| R1 | `bmi` outside **12.00–70.00** (inclusive). **Decided 2026-09-25, explicitly approved by the user (range 12–70 and the 0.5% gate).** BLANK stays NULL and is not a violation. | 1,035 rows (0.23%), all above 70. Measured on the raw data before the build. |
+| D3 | `IDATE` is not a real calendar date | 0 rows (built and measured 2026-09-28, full 441,456 rows) |
+| D4 | Interview date year not 2015 or 2016 | 0 rows (built and measured 2026-09-28) |
+| K1 | Duplicate primary key | 0 rows (built and measured 2026-09-28) |
+| W1 | `final_weight` null or ≤ 0 | 0 rows (built and measured 2026-09-28) |
+| S1 | `state_fips` not among the 53 codebook codes | 0 rows (built and measured 2026-09-28) |
+| C1 | A code column holds a value outside the allowed set | 0 rows (built and measured 2026-09-28, all 10 code columns checked) |
+| R1 | `bmi` outside **12.00–70.00** (inclusive). **Decided 2026-09-25, explicitly approved by the user (range 12–70 and the 0.5% gate).** BLANK stays NULL and is not a violation. | **1,035 rows (0.2345%), all above 70.** Predicted from the raw data before the build (2026-09-25); confirmed by the actual build on 2026-09-28 - exact match. |
 
 **R1 alternatives that were considered** (raw `_BMI5` range is 12.02–99.95; 36,398 BLANK are NULL, not violations):
 
@@ -103,7 +103,7 @@ Every record ends in exactly one outcome: **clean**, **corrected**, **quarantine
 | Check | Threshold |
 |---|---|
 | clean + corrected + quarantined + rejected = input rows | Exact |
-| Quarantine rate | Under **0.5%** for this dataset (decided 2026-09-25). The brief's general metric is 0.1%, so this is a documented deviation. Expected: 0.23% (R1 only), and it must be re-measured after the build. |
+| Quarantine rate | Under **0.5%** for this dataset (decided 2026-09-25). The brief's general metric is 0.1%, so this is a documented deviation. **Measured 2026-09-28 on Databricks, full data: 0.2345% (1,035 of 441,456), all rule R1. Gate passes.** |
 | Silver schema matches this contract | Exact |
 | Primary key unique | No duplicates |
 | Both platforms: silver row counts and per-column null counts | Row counts identical; null rate within 0.01% |
@@ -131,3 +131,17 @@ Measured `diabetes_code` counts in 2015: 3 → 372,104 · 1 → 57,256 · 4 → 
 1. ~~R1 BMI range~~ Decided: 12.00–70.00, gate 0.5%.
 2. **Row-level quarantine.** A quarantined record disappears from silver and gold entirely, even if only its BMI is doubtful.
 3. **Guam (66) and Puerto Rico (72)** are kept in gold with the 50 states + DC.
+
+## Built and verified on Databricks (2026-09-28, full 441,456-row data)
+
+| Layer | Table | Rows | Result |
+|---|---|---|---|
+| bronze | `bronze.brfss_2015` | 441,456 | Exact match with the source CSV; 333 columns (330 + 3 load metadata); 53 distinct states |
+| reference | `ref.codebook_values` | 1,882 | 330/330 variables present |
+| silver | `silver.brfss_clean` | 440,421 | |
+| quarantine | `silver.brfss_quarantine` | 1,035 | All rule R1 |
+| gold | `gold.diabetes_prevalence_state` | 53 | Every state resolved to a name; national weighted prevalence 10.5% |
+
+Reconciliation, all exact: 440,421 + 1,035 = 441,456 (silver). 439,624 valid + 781 excluded = 440,421 (gold). 0 duplicate primary keys.
+Sanity check: 10.5% national and the state ranking (Mississippi, West Virginia, Alabama highest) are consistent with published CDC BRFSS 2015 figures and the known "diabetes belt" pattern — external plausibility, not a formal validation.
+SQL: `sql/databricks/01_phase1_setup.sql` through `05_phase2_full_load.sql`, run in order.

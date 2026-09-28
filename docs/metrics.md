@@ -41,28 +41,28 @@ Targets come from the brief. "Status" is NOT MEASURED for all of them today.
 ### Ingestion
 | ID | Metric | Definition | Target | Status |
 |---|---|---|---|---|
-| I1 | `rows_bronze` | `count(*)` of `bronze.brfss_2015` after load | 441,456, the row count of `2015.csv` counted locally | NOT MEASURED |
-| I2 | `load_seconds` | Wall clock from start of the load command until the first successful `count(*)` on bronze | Recorded and compared | NOT MEASURED |
-| I3 | `upload_seconds` | Time to move the file to the platform (stage or volume), reported separately from I2. This is the number most affected by region distance. | Recorded | NOT MEASURED |
-| I4 | `load_cost` | Platform cost units used by the load, then converted to USD | Recorded and compared | NOT MEASURED |
-| I5 | `failed_loads` | Load attempts that errored | Zero | NOT MEASURED |
+| I1 | `rows_bronze` | `count(*)` of `bronze.brfss_2015` after load | 441,456, the row count of `2015.csv` counted locally | **Databricks: 441,456. Exact match. Measured 2026-09-28.** Snowflake: NOT MEASURED. |
+| I2 | `load_seconds` | Wall clock from start of the load command until the first successful `count(*)` on bronze | Recorded and compared | **Databricks: 11.4s, PROVISIONAL (CLI wall clock, not the Python runner yet).** Snowflake: NOT MEASURED. |
+| I3 | `upload_seconds` | Time to move the file to the platform (stage or volume), reported separately from I2. This is the number most affected by region distance. | Recorded | **Databricks: 106.8s for the 541MB file, PROVISIONAL.** Snowflake: NOT MEASURED. |
+| I4 | `load_cost` | Platform cost units used by the load, then converted to USD | Recorded and compared | Databricks: **NOT MEASURABLE** (Free Edition, no billing table - see below). Snowflake: NOT MEASURED. |
+| I5 | `failed_loads` | Load attempts that errored | Zero | **Databricks: 0 (2/2 loads succeeded - the sample and the full file).** Snowflake: NOT MEASURED. |
 
 Cost per 100M rows is **not reported** as a measurement. At 441,456 rows it would be an extrapolation (about 0.44% of 100M), and would be labelled as such if shown.
 
 ### Transformation and quality
 | ID | Metric | Definition | Target | Status |
 |---|---|---|---|---|
-| Q1 | `rows_silver`, `rows_quarantine`, `rows_rejected`, `rows_gold` | Count of each layer | Identical on both platforms | NOT MEASURED |
-| Q2 | `outcomes_sum_check` | clean + corrected + quarantined + rejected = 441,456 | Exact | NOT MEASURED |
-| Q3 | `row_count_parity` | Absolute difference between platforms for each of Q1 | 0 | NOT MEASURED |
-| Q4 | `null_rate_<column>` | nulls ÷ rows × 100, for each of the 18 silver columns | Both platforms within 0.01 percentage points | NOT MEASURED |
-| Q5 | `quarantine_rate` | rows_quarantine ÷ 441,456 × 100 | Under 0.5% (dataset limit, see contract) | NOT MEASURED. Expected 0.23%. |
-| Q6 | `quarantine_by_rule` | Count of quarantined rows per rule ID | Identical on both platforms | NOT MEASURED |
-| Q7 | `corrections_by_type` | Count of corrected rows per correction | Identical on both platforms | NOT MEASURED |
-| Q8 | `code_check_C2` | Silver + quarantine count per code equals the codebook frequency | All equal | NOT MEASURED |
-| Q9 | `external_reproduction` | The Kaggle notebook's filters on bronze give 343,606, then 253,680 rows | Exact | Reproduced locally in DuckDB only. NOT MEASURED on either platform. |
-| Q10 | `gold_parity` | Every gold column equal on both platforms (floating-point sums compared to 6 decimals) | Equal | NOT MEASURED |
-| Q11 | `pk_duplicates` | Duplicate `(state_fips, survey_year, seqno)` in silver | 0 | NOT MEASURED |
+| Q1 | `rows_silver`, `rows_quarantine`, `rows_rejected`, `rows_gold` | Count of each layer | Identical on both platforms | **Databricks: silver 440,421 · quarantine 1,035 · rejected 0 · gold 53. Measured 2026-09-28.** Snowflake: NOT MEASURED. |
+| Q2 | `outcomes_sum_check` | clean + corrected + quarantined + rejected = 441,456 | Exact | **Databricks: 440,421 + 1,035 + 0 = 441,456. Exact. Measured 2026-09-28.** Snowflake: NOT MEASURED. |
+| Q3 | `row_count_parity` | Absolute difference between platforms for each of Q1 | 0 | NOT MEASURED (needs Snowflake built first) |
+| Q4 | `null_rate_<column>` | nulls ÷ rows × 100, for each of the 18 silver columns | Both platforms within 0.01 percentage points | NOT MEASURED (not yet run per-column) |
+| Q5 | `quarantine_rate` | rows_quarantine ÷ 441,456 × 100 | Under 0.5% (dataset limit, see contract) | **Databricks: 0.2345% (1,035/441,456). Under the gate. Measured 2026-09-28** — matches the 0.23% predicted from raw-file profiling on 2026-09-25, before this SQL existed. Snowflake: NOT MEASURED. |
+| Q6 | `quarantine_by_rule` | Count of quarantined rows per rule ID | Identical on both platforms | **Databricks: R1=1,035, all other rules=0. Measured 2026-09-28.** Snowflake: NOT MEASURED. |
+| Q7 | `corrections_by_type` | Count of corrected rows per correction | Identical on both platforms | **Databricks: D1 (strip byte-string wrapper) + Z1 (state zero-pad) applied to all 440,421 clean rows; D2 (space-pad date) fired on 0 rows in 2015. Measured 2026-09-28.** Snowflake: NOT MEASURED. |
+| Q8 | `code_check_C2` | Silver + quarantine count per code equals the codebook frequency | All equal | NOT MEASURED (rule C1 checks code *validity*, which passed at 0 hits; this separate check - comparing *counts per code* against the codebook's own frequency column - has not been run yet) |
+| Q9 | `external_reproduction` | The Kaggle notebook's filters on bronze give 343,606, then 253,680 rows | Exact | Reproduced locally in DuckDB only (2026-09-25). NOT MEASURED as a query against either platform's bronze table yet. |
+| Q10 | `gold_parity` | Every gold column equal on both platforms (floating-point sums compared to 6 decimals) | Equal | NOT MEASURED (needs Snowflake built first) |
+| Q11 | `pk_duplicates` | Duplicate `(state_fips, survey_year, seqno)` in silver | 0 | **Databricks: 0. Measured 2026-09-28.** Snowflake: NOT MEASURED. |
 
 ### Schema drift
 | ID | Metric | Definition | Target | Status |
