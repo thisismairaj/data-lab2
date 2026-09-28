@@ -29,3 +29,11 @@ Each concept in 2–3 lines. Newest at the bottom.
 **Free Edition limits are real deviations.** No clusters, no cluster policies, one warehouse that cannot be edited, and no `system.billing.usage` table. The brief assumes all of these exist. We record each as a gap, not a workaround.
 
 **Cost can be unmeasurable.** Not every platform exposes its bill. "NOT MEASURED" means we haven't looked yet. "NOT MEASURABLE" means we looked and the data does not exist. The report must not blur the two.
+
+## Day (2026-09-28) — Databricks Phase 2, sample load
+
+**Unity Catalog volume.** A volume is a managed folder for raw files inside a catalog/schema, addressed like `/Volumes/workspace/bronze/landing/`. It's the Databricks equivalent of an S3 path, but access-controlled through Unity Catalog like a table.
+
+**`read_files` needs a full struct, not a type name.** Passing `schema => 'STRING'` fails: Spark expects a struct definition (`STRUCT<col1 STRING, col2 STRING, ...>`), one entry per column. With 330 columns, this string was generated from the CSV header rather than typed by hand.
+
+**Bronze stayed true to the contract.** Spot-checked after loading: `_STATE` reads `1.0`, `IDATE` still carries `b'01292015'`. Nothing was silently converted. That confirms bronze is doing its job (raw, unmodified) before silver does any cleaning.
