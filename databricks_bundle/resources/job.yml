@@ -1,0 +1,12 @@
+resources:
+  jobs:
+    medallion_job:
+      name: brfss-medallion-job-${bundle.target}
+      tasks:
+        - task_key: run_medallion_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.medallion_pipeline.id}
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: UTC
+        pause_status: PAUSED

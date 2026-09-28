@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    medallion_job_generated:
+      name: brfss-medallion-lakeflow-job
+      tasks:
+        - task_key: run_medallion_pipeline
+          disabled: false
+          email_notifications: {}
+          pipeline_task:
+            pipeline_id: cec13faa-2611-47b9-a2cf-158b699c9a19
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+      email_notifications: {}
+      max_concurrent_runs: 1
+      queue:
+        enabled: true
+      schedule:
+        pause_status: PAUSED
+        quartz_cron_expression: 0 0 6 * * ?
+        timezone_id: UTC
+      timeout_seconds: 0
+      webhook_notifications: {}
