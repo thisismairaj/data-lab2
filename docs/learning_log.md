@@ -147,3 +147,28 @@ looked fine at a glance (pipeline succeeded, row counts summed correctly) - only
 gold-by-year breakdown exposed it, because "53 rows, not ~106" was the wrong shape for
 two years of data. Lesson: a pipeline succeeding and totals reconciling is necessary but
 not sufficient - the *shape* of the output also needs a sanity check, not just the count.
+
+## Day (2026-09-28) — Snowflake Phase 1 + 2, no CLI needed
+
+**Snowflake CLI (`snow`) broke on both my shell and the user's own PowerShell** - a real,
+reproducible "Access is denied" writing `snow.exe`, not a sandbox quirk. Pivoted to the
+Python connector (`snowflake-connector-python`, already installed from Phase 0) instead -
+same SQL, same results, no CLI dependency at all. Worth remembering: a blocked CLI doesn't
+mean blocked access, if a language driver exists for the same API.
+
+**Snowflake's cost/governance tools are real on a normal trial - no upgrade needed.**
+`CREATE RESOURCE MONITOR ... TRIGGERS ON 50 PERCENT DO NOTIFY ON 100 PERCENT DO SUSPEND`
+gave a genuine, enforced credit ceiling immediately. Compare: Databricks Free Edition had
+no equivalent at all; only the paid Trial exposed real cost data.
+
+**The same splitter bug bit twice, in two different scripts.** Naive `.split(';')` breaks
+the moment a string literal (a note field, a reason message) contains a semicolon - already
+learned this building Databricks SQL, then rebuilt a naive version for Snowflake and hit
+the identical failure. Fixed the same way: track whether you're inside a quote before
+treating `;` as a statement boundary. Lesson: write the quote-aware splitter once, as a
+shared utility, not per-platform from memory.
+
+**Row-count parity, the brief's actual requirement, holds: 441,456 = 441,456.** Bronze on
+Snowflake and Databricks now agree exactly, loaded via each platform's own named method
+(`COPY INTO` vs `read_files`), same raw byte-for-byte values (`_STATE='1.0'`,
+`IDATE="b'01292015'"` on both sides).

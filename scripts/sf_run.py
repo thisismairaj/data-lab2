@@ -15,17 +15,42 @@ con = snowflake.connector.connect(
 cur = con.cursor()
 
 sql_text = open(sys.argv[1], encoding="utf-8").read() if sys.argv[1].endswith(".sql") else sys.argv[1]
-# split on ';' (good enough for our files: no ';' inside string literals), then strip
-# full-line comments from EACH chunk before deciding whether it has real SQL left -
-# BUG FIX: previously filtered raw chunks by whether their first line was a comment,
-# which dropped statements that legitimately start with a comment line above them.
-raw_chunks = sql_text.split(";")
-stmts = []
-for s in raw_chunks:
-    lines = [l for l in s.split("\n") if not l.strip().startswith("--")]
-    s2 = "\n".join(lines).strip()
-    if s2:
-        stmts.append(s2)
+
+def strip_line_comment(line):
+    in_str = False
+    i = 0
+    while i < len(line) - 1:
+        if line[i] == "'":
+            in_str = not in_str
+        elif not in_str and line[i:i+2] == "--":
+            return line[:i]
+        i += 1
+    return line
+
+def split_statements(text):
+    # quote-aware split on ';' - a semicolon inside a string literal (e.g. a note field
+    # like '...; matches ...') must NOT end the statement. Same bug class hit twice now
+    # with the naive .split(';') version - fixed once, properly, here.
+    lines = [strip_line_comment(l) for l in text.split("\n")]
+    text = "\n".join(lines)
+    stmts, buf, in_str, i = [], [], False, 0
+    while i < len(text):
+        c = text[i]
+        buf.append(c)
+        if c == "'":
+            in_str = not in_str
+        elif c == ";" and not in_str:
+            s = "".join(buf[:-1]).strip()
+            if s:
+                stmts.append(s)
+            buf = []
+        i += 1
+    tail = "".join(buf).strip()
+    if tail:
+        stmts.append(tail)
+    return stmts
+
+stmts = split_statements(sql_text)
 
 for s2 in stmts:
     if not s2:
