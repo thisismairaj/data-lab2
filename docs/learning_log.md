@@ -37,3 +37,13 @@ Each concept in 2–3 lines. Newest at the bottom.
 **`read_files` needs a full struct, not a type name.** Passing `schema => 'STRING'` fails: Spark expects a struct definition (`STRUCT<col1 STRING, col2 STRING, ...>`), one entry per column. With 330 columns, this string was generated from the CSV header rather than typed by hand.
 
 **Bronze stayed true to the contract.** Spot-checked after loading: `_STATE` reads `1.0`, `IDATE` still carries `b'01292015'`. Nothing was silently converted. That confirms bronze is doing its job (raw, unmodified) before silver does any cleaning.
+
+## Day (2026-09-28) — Databricks Phase 3, silver/quarantine/gold on the sample
+
+**Testing on a sample caught something the full-data profile didn't show: row order.** The 50,000-row sample only produced 6 states (Alabama through Colorado), because `2015.csv` turns out to be sorted by `_STATE`, not shuffled. A random sample would have hit all states; a "first N rows" sample does not. Good reason the contract calls this a "sample", not a proxy for the real distribution — it validates the pipeline logic, not the business answer.
+
+**Multi-statement SQL over an HTTP API needs a real parser, not `.split(';')`.** A naive split breaks the moment a string literal (a reason message, a comment) contains a semicolon. Fixed by writing a small character-by-character splitter that tracks whether it's inside a quoted string before treating `;` as a statement boundary.
+
+**Reconciliation as a habit, not a one-off.** After every table build: does clean + quarantine equal the input count? Does gold's sum of included and excluded equal silver's row count? Every check passed exactly on the first correct run, which is itself informative — it means the CASE WHEN logic doesn't have an off-by-one or an uncovered branch.
+
+**Weighting changes the answer, and by different amounts per state.** Alabama: 13.46% weighted vs 17.14% unweighted. Colorado: 7.05% vs 9.28%. The survey oversamples some groups relative to the general population; the weight corrects for that. Reporting only the unweighted number would overstate prevalence here.
