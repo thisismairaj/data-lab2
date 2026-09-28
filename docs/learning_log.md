@@ -111,3 +111,23 @@ need a human reading each row, not just the biggest number.
 
 Same age-confound caveat as before: several of these (especially the top 4, all age-linked
 conditions) are tangled with diabetics skewing somewhat older, not a clean diabetes-only effect.
+
+## Day (2026-09-28) — Lakeflow Declarative Pipelines + Jobs, real (trial workspace)
+
+**Pipeline vs Job, seen not just explained.** A Pipeline declares *what* tables should
+exist; a Job decides *when* something runs and *what happens if it fails*. Proved this
+concretely: creating the pipeline alone gave no scheduling at all - `databricks pipelines
+run` even refused to run outside a bundle context. Wrapping it in a Job (one `pipeline_task`)
+is what added a cron schedule, retry fields, and a `run-now` trigger. Confirmed working:
+job run SUCCESS, 62s, correctly invoked the pipeline underneath.
+
+**Declared logic reproduced the manual build exactly.** 441,456 -> 440,421 clean + 1,035
+quarantined (all rule R1) -> 53 states. Same numbers as the hand-sequenced Free Edition
+build, but the engine worked out bronze-before-silver-before-gold execution order from the
+SQL itself (each CREATE statement's FROM clause names the table before it), not from me
+running things in a specific order.
+
+**Trial vs Free Edition, confirmed by actually trying it.** Free Edition refused to edit
+the warehouse ("Editing warehouse is not available to you") and had zero clusters. Same
+edit on the trial workspace succeeded immediately, and `databricks pipelines create`
+(which needs its own serverless pipeline compute) worked without any block.
