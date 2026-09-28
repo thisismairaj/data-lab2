@@ -55,3 +55,25 @@ Each concept in 2–3 lines. Newest at the bottom.
 **Reconciliation caught nothing wrong — and that's still worth checking.** Every gate passed on the first correct run: 440,421 + 1,035 = 441,456 (silver), 439,624 + 781 = 440,421 (gold), 0 duplicate keys. A pipeline that reconciles isn't proof of a *correct* business answer, only that no rows were lost or double-counted along the way.
 
 **External plausibility as a cheap sanity check.** National weighted prevalence came out 10.5%, and the state ranking (Mississippi, West Virginia, Alabama highest) matched the well-known "diabetes belt" pattern from public health literature. This doesn't *prove* the pipeline is right — a consistently-biased pipeline could still look plausible — but a wildly implausible number (say, 60% or 0.5%) would have been a strong signal something was broken, worth checking before trusting anything downstream.
+
+## Day (2026-09-28) — smoking and BMI category gold tables
+
+Results, weighted % (matches published diabetes risk patterns, a useful sanity check):
+
+| Smoking status | Weighted % |
+|---|---|
+| Never smoked | 8.73% (lowest) |
+| Current smoker, some days | 8.95% |
+| Current smoker, daily | 9.60% |
+| Former smoker | **15.73%** (highest) |
+
+**Former smokers having the highest rate is not "quitting causes diabetes."** This is a known trap called reverse causation: many people quit smoking *because* they were just diagnosed with diabetes or another condition, on doctor's orders - and former smokers also skew older on average, which independently raises diabetes risk. The data shows an association, and the pipeline correctly refuses to claim more than that (see docs/schema_contract.md's caution about correlation vs cause).
+
+| BMI category | Weighted % |
+|---|---|
+| Underweight | 3.21% (lowest) |
+| Normal weight | 4.52% |
+| Overweight | 9.89% |
+| Obese | **19.14%** (highest - about 6x underweight, 4x normal weight) |
+
+This one is a clean, monotonic gradient exactly matching the well-known BMI-diabetes relationship - stronger external validation than the smoking table, precisely because there's no confound as obvious as reverse causation muddying it.
