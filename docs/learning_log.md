@@ -77,3 +77,37 @@ Results, weighted % (matches published diabetes risk patterns, a useful sanity c
 | Obese | **19.14%** (highest - about 6x underweight, 4x normal weight) |
 
 This one is a clean, monotonic gradient exactly matching the well-known BMI-diabetes relationship - stronger external validation than the smoking table, precisely because there's no confound as obvious as reverse causation muddying it.
+
+## Day (2026-09-28) — comorbidity table
+
+Built by joining silver.brfss_clean back to bronze.brfss_2015 for 10 columns outside the
+core contract (see sql/databricks/09_gold_comorbidity.sql for why - deliberately not
+added to the contract, to avoid scope creep mid-project). Join verified 1:1 (440,421 rows,
+matching silver exactly). Diabetic group: 57,116. Non-diabetic group: 378,911. The
+remaining 4,394 (pregnancy-only, don't know, refused) are correctly excluded from both
+groups - group membership has to be unambiguous.
+
+Weighted %, diabetic vs non-diabetic, sorted by gap size:
+
+| Condition | Diabetic | Non-diabetic | Ratio |
+|---|---|---|---|
+| Kidney disease | 9.02% | 1.93% | 4.67x |
+| Coronary heart disease | 13.57% | 2.98% | 4.55x |
+| Heart attack | 14.00% | 3.15% | 4.44x |
+| Stroke | 8.71% | 2.37% | 3.68x |
+| High blood pressure | 72.17% | 27.60% | 2.61x |
+| High cholesterol | 64.97% | 32.37% | 2.01x |
+| Depression | 25.40% | 16.62% | 1.53x |
+| Asthma | 17.96% | 13.30% | 1.35x |
+| Skipped care (cost) | 14.64% | 12.98% | 1.13x |
+| **No personal doctor** | **6.56%** | **23.12%** | **0.28x (reversed)** |
+
+**The interesting one is the reversal.** Every other condition is higher among diabetics -
+except "no personal doctor," which is much LOWER. That's not diabetes protecting against
+poor healthcare access; it's the opposite direction of causation from all the others -
+managing diabetes requires ongoing care, so diagnosed diabetics are more likely to already
+have a regular doctor relationship. Good example of why "compare the two groups" tables
+need a human reading each row, not just the biggest number.
+
+Same age-confound caveat as before: several of these (especially the top 4, all age-linked
+conditions) are tangled with diabetics skewing somewhat older, not a clean diabetes-only effect.
