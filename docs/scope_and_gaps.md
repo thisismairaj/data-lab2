@@ -55,6 +55,7 @@ Consequence for the comparison: idle time after each query costs more on Databri
 | D5 | Stretch dataset: unstructured | `codebook15_llcp.pdf` exists (6.9 MB). Not extracted. | Stretch is dropped. The brief marks it optional. |
 | D6 | Two engineers, each owning one platform, neither measures their own | One engineer, both platforms | No cross-measurement. Metrics are self-measured; say so in the report. |
 | D7 | Phase 4 external consumer via Snowflake reader account / Delta Sharing | Planned: plain Python + pandas client reads gold from both. If Delta Sharing is unavailable on our Databricks account, use the Databricks SQL connector for Python and record it here. | To be filled after Phase 4 lite. |
+| D8 | Power BI dashboard "live on real metrics" implies a shareable/hosted view | Power BI's cloud service (powerbi.com) requires a work/school (Azure AD) account. Checked 2026-09-28: no access on the `chaingpt.tech` work email, and a personal Gmail/Outlook.com account is rejected at signup ([Microsoft docs](https://learn.microsoft.com/en-us/power-bi/fundamentals/service-self-service-signup-purchase-for-power-bi)). A Microsoft 365 trial could create a usable account but needs phone/payment verification - not worth the setup time for this deadline. | Dashboard stays a local `.pbix` file, opened directly for the manager (or the file handed over), not hosted online. Meets the brief's "not a screenshot" requirement (real interactive visuals on real data) without needing a cloud tenant. |
 
 ## Data problems found in Step 1 (before any fixing)
 
