@@ -228,3 +228,32 @@ Free Edition) - turns out 2012 is missing them too, only visible once all 5 year
 actually loaded together. And the "flat, noisy" 3-year prevalence trend (2013-2015) turned
 into a real, gradual 5-year rise once 2011-2012 were added - 3 data points weren't enough
 to tell a trend from noise; 5 were.
+
+## Day (2026-09-29) — Free Edition extended to 5 years, ANSI mode changes what "returns NULL" means
+
+**A CLI I'd only used for workspace/pipeline management turned out to run SQL directly.**
+`databricks api post /api/2.0/sql/statements` (the Statement Execution API) works from
+the same OAuth-authenticated CLI already used all session for `workspace`/`pipelines`/
+`jobs` commands - no separate SQL connector needed, unlike Snowflake (which needed
+`snowflake-connector-python` because its CLI itself was broken). One real gotcha: Git
+Bash rewrites any argument starting with `/` into a Windows path (`/api/2.0/...` became
+`C:/Program Files/Git/api/2.0/...`), silently turning a valid API call into a 404.
+`MSYS_NO_PATHCONV=1` disables that rewriting - worth remembering for any CLI argument
+that looks like a Unix path but isn't a real filesystem path.
+
+**`to_date()` and `try_to_date()` are not interchangeable, and the difference only shows
+up with bad data.** The 2015-only build used `to_date()` and assumed it returns NULL for
+an unparseable date, matching the docs at the time. That assumption was never actually
+tested, because 2015 happens to have zero impossible dates. The moment 2011 (63 rows of
+`09312011`-style dates) entered the build, `to_date()` under this runtime's ANSI SQL mode
+**threw an error and crashed the whole `CREATE TABLE`** instead of returning NULL.
+`try_to_date()` is the version that actually returns NULL on a bad date - the fix was a
+one-word swap, but finding it required the exact bad data D3 was written to catch. Same
+shape as the C1 gap on the Lakeflow build: a rule (or in this case, a function's assumed
+behavior) that looked fine only because the data on hand never exercised the edge case.
+
+**Result: two independently-built 5-year pipelines (Free Edition's hand-sequenced CTAS,
+Trial's Lakeflow declarative pipeline) agree on the national prevalence trend to the
+decimal** - 9.8% / 10.18% / 10.27% / 10.54% / 10.5% for 2011-2015, computed from
+completely different code paths. That's the strongest evidence yet that the pipeline's
+*logic* is what's being validated, not an artifact of one particular build method.

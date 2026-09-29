@@ -3,11 +3,15 @@
 Status: DRAFT after Step 1 (dataset review). Phase scope is not yet approved.
 Every number below was measured on 2026-09-25 by profiling the local files with DuckDB (all columns read as text, so nothing was coerced).
 
-## Scope change (2026-09-25, user decision): 2015 only
+## Scope change (2026-09-25, user decision): 2015 only, later extended to 5 years
 
-The pipeline uses **`2015.csv` only** (441,456 rows, 330 columns). 2011–2014 stay out of scope. The Step 1 profile below covers all five years and is kept for reference. The rules in `schema_contract.md` use 2015 numbers only. Findings that only affected other years (bad dates in 2011/2012/2014, the `DISPCODE` 110→1100 vocabulary change, 2011's blank `DIABETE3` values) do not apply to 2015.
+The pipeline originally used **`2015.csv` only** (441,456 rows, 330 columns) for the Databricks-vs-Snowflake core comparison; the rules in `schema_contract.md` and the Snowflake build still use 2015 numbers only, and that comparison's parity claims are unaffected by the extension below.
 
-Effect on the brief: even less data (441,456 rows, 0.44% of the 100M target), and no cross-year schema drift to detect. The 3 injected drift tests (rename, type change, dropped column) become the only drift evidence.
+**2026-09-29: Free Edition extended to all 5 years (2011-2015)**, matching the 5-year extension already done on the Trial/Lakeflow workspace. Each year gets its own bronze table (`workspace.bronze.brfss_YYYY`, its own `STRUCT` schema - column counts 457/362/339/282/333 including the 3 load-metadata columns, exact match to this file's own Step 1 profile). Silver unions all 5 before applying rules (C1 included from the start, not added later). Results: bronze row counts exact per year (506,467/475,687/491,773/464,664/441,456); silver clean+quarantine reconciles exactly to bronze for every year with zero PK duplicates; quarantine totals 180/108/159/124/1,035 = 1,606 across 5 years. All 6 gold tables rebuilt multi-year. The national prevalence trend (9.8% → 10.18% → 10.27% → 10.54% → 10.5%) matches the Trial/Lakeflow build's own independently-computed trend **exactly to the decimal**, despite a completely different build methodology (hand-sequenced CTAS here vs. a declarative pipeline there) - strong evidence the pipeline logic, not just the platform, is what's being validated.
+
+**One real bug found during the extension**, not present in the 2015-only build: `to_date()` under this runtime's ANSI SQL mode **throws** on an unparseable date (e.g. `09312011`, September has no 31st) instead of returning NULL. The 2015-only build never hit this because 2015 has 0 impossible dates; 2011 alone has 63. Fixed with `try_to_date()`, which returns NULL on a bad date as originally assumed - exactly what rule D3 needs. A second, minor bug (a correlated-scalar-subquery verification query Spark rejected) was also fixed, in a verification query only, not a data table.
+
+The Step 1 profile below covers all five years and is kept for reference; the 100M target and cross-year schema drift are still open (5 real years now loaded, 2.38M rows total, but the 3 injected drift tests - rename, type change, dropped column - are still the primary drift evidence for this deliverable).
 
 ## Dataset used
 
