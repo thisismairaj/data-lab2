@@ -204,3 +204,27 @@ a simple 0-3 risk factor count with a monotonic staircase: 6.15% -> 12.92% -> 18
 the single most compelling number this project has produced, precisely because it
 compounds three ordinary findings (obesity, smoking, inactivity) into one comparison
 instead of showing each in isolation.
+
+## Day (2026-09-29) — all 5 years, and a real validation gap found by testing at scale
+
+**A shortcut taken "to keep the demo focused" turned into a real data-quality gap.**
+Skipping rule C1 (code validity) in the first Lakeflow build seemed reasonable when only
+2015 was loaded - nothing ever violated it. The moment 2013/2014 joined, corrupted values
+(a BMI category of "2281", which looks exactly like a raw BMI value that landed in the
+wrong column) started appearing, undetected, straight in gold. The lesson isn't "always
+implement every rule from day one" - it's "know which shortcuts are safe only because the
+current data happens not to exercise them, and revisit them the moment the data changes."
+
+**Two independent bugs surfaced in the same debugging session, and it mattered to tell
+them apart.** The C1 gap was mine, from an earlier explicit scope decision. The corrupted
+`04_gold_state.sql` file was a separate, pre-existing issue that had nothing to do with
+today's edits - it just never got exercised until a full refresh forced Databricks to
+re-validate every file in the pipeline, not only the one just edited. Conflating the two
+would have wasted time chasing the wrong fix.
+
+**Testing at 5-year scale changed two conclusions from the single-year build.** BP/
+cholesterol were assumed missing from just 2014 (found via a direct 2014-vs-2015 diff on
+Free Edition) - turns out 2012 is missing them too, only visible once all 5 years were
+actually loaded together. And the "flat, noisy" 3-year prevalence trend (2013-2015) turned
+into a real, gradual 5-year rise once 2011-2012 were added - 3 data points weren't enough
+to tell a trend from noise; 5 were.

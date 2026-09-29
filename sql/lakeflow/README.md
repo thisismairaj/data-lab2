@@ -70,3 +70,37 @@ derived from `_source_file` via regex, not a constant.
 Reconciliation: `904,965 + 1,155 = 906,120` = bronze total, exact.
 Alabama sample: 12.94% (2014) vs 13.46% (2015) weighted - close, not identical, as real
 year-over-year data should look.
+
+## Update 2026-09-29: extended to all 5 years (2011-2015), extra gold tables added, one real bug found and fixed
+
+**2011 and 2012 were added** (user uploaded them to the volume directly). Bronze now holds
+all 2,380,047 rows across 5 files, exact match to known per-year totals. A `--full-refresh`
+run happened to pick up the newly uploaded files mid-run, without needing a separate trigger.
+
+**Real bug found and fixed: rule C1 (code validity) was missing from this pipeline's
+original build.** Once 2013/2014 landed, corrupted values appeared - `bmi_category_code`
+values like `2281.0` (should only be 1-4) and `smoker_status_code = 5` (should only be
+1-4 or 9), a handful of rows per year. These look like values that landed in the wrong
+column. The Free Edition build already had this check; this demo had explicitly skipped it
+"to keep the demo focused" - that was a real gap, not a stylistic choice, and it let
+corrupted data straight into gold silently. C1 has been added to
+`03_silver_clean_and_quarantine.sql`, matching the Free Edition contract exactly. 1,318
+corrupted rows across all 5 years are now correctly quarantined instead of silently
+appearing in gold.
+
+**A second, unrelated bug found during the fix:** `04_gold_state.sql`'s workspace copy had
+gotten corrupted at some earlier point (literal folder-path text spliced into the SQL) -
+not something caused by this session's edits, just never surfaced until a full refresh
+forced Databricks to re-validate every file, not only the one being edited. Fixed by
+re-uploading a clean copy from the local repo.
+
+**Extra gold tables added, all multi-year** (age, smoking, BMI, comorbidity, risk-stacking)
+- same definitions as the Free Edition equivalents, extended with `survey_year`:
+- `BPHIGH4`/`TOLDHI2` (blood pressure/cholesterol) are missing from **both 2012 and 2014**,
+  not just 2014 as first found on Free Edition (2014-vs-2015 comparison only). Those years
+  correctly show 0 respondents / no percentage for those two conditions, not a fake zero.
+- The compounding-risk finding (obesity x smoking x inactivity) holds across **all 5
+  independent years**: the 0-vs-3-risk-factor ratio ranges 3.39x-3.71x every year. Much
+  stronger evidence than a single year.
+- National prevalence shows a real, gradual rise: 9.8% (2011) -> 10.18% -> 10.27% ->
+  10.54% -> 10.5% (2015) - visible now with 5 years, where 3 years looked flat/noisy.
