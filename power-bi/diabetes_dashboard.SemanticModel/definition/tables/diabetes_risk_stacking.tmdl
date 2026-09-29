@@ -1,0 +1,131 @@
+table diabetes_risk_stacking
+	lineageTag: c76fda51-494a-42c6-bb9d-1ec57268ab94
+
+	column survey_year
+		dataType: int64
+		formatString: 0
+		lineageTag: b0207e65-8152-4fd4-b774-74f772ff6ef9
+		summarizeBy: sum
+		sourceColumn: survey_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column obese_flag
+		dataType: int64
+		formatString: 0
+		lineageTag: 77ccf956-921e-4733-8656-f07025ab9e60
+		summarizeBy: sum
+		sourceColumn: obese_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column smoker_flag
+		dataType: int64
+		formatString: 0
+		lineageTag: 7cc89641-f0aa-4c4c-b70a-8e3d3b120700
+		summarizeBy: sum
+		sourceColumn: smoker_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column inactive_flag
+		dataType: int64
+		formatString: 0
+		lineageTag: 91111ec1-6857-4990-ba9d-6ab0b522f5fa
+		summarizeBy: sum
+		sourceColumn: inactive_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column risk_factor_count
+		dataType: int64
+		formatString: 0
+		lineageTag: f065fc44-9094-49e8-8452-34167c2adc9b
+		summarizeBy: sum
+		sourceColumn: risk_factor_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_respondents
+		dataType: int64
+		formatString: 0
+		lineageTag: 47d38dff-57a9-4217-80aa-ee874ec24608
+		summarizeBy: sum
+		sourceColumn: valid_respondents
+
+		annotation SummarizationSetBy = Automatic
+
+	column diabetes_yes
+		dataType: int64
+		formatString: 0
+		lineageTag: 5cd8c5c6-fed1-4564-814c-a1f0d5b37055
+		summarizeBy: sum
+		sourceColumn: diabetes_yes
+
+		annotation SummarizationSetBy = Automatic
+
+	column weighted_yes_sum
+		dataType: double
+		lineageTag: 496855ba-aee7-42bf-9fd7-dc94df3039f4
+		summarizeBy: sum
+		sourceColumn: weighted_yes_sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column weighted_valid_sum
+		dataType: double
+		lineageTag: 4967e74c-21bd-4825-9f9e-fe4869e8c915
+		summarizeBy: sum
+		sourceColumn: weighted_valid_sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column prevalence_weighted_pct
+		dataType: double
+		lineageTag: fff8083a-bff5-4768-a612-54e3bb12b153
+		summarizeBy: sum
+		sourceColumn: prevalence_weighted_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column small_cell_suppressed
+		dataType: boolean
+		lineageTag: 2d8ed48b-8938-46d7-ba7a-831ebeab8973
+		summarizeBy: none
+		sourceColumn: small_cell_suppressed
+
+		annotation SummarizationSetBy = Automatic
+
+	measure 'Risk Prevalence %' = ```
+			DIVIDE(SUM(diabetes_risk_stacking[weighted_yes_sum]), SUM(diabetes_risk_stacking[weighted_valid_sum]))
+			```
+		formatString: 0.0%
+		lineageTag: 33ea5b27-80ba-42aa-afe8-656e50eaa942
+
+	measure 'Risk Factor Gap x' = ```
+			DIVIDE(
+			    CALCULATE([Risk Prevalence %], diabetes_risk_stacking[risk_factor_count] = 3),
+			    CALCULATE([Risk Prevalence %], diabetes_risk_stacking[risk_factor_count] = 0)
+			)
+			```
+		formatString: 0.0"x"
+		lineageTag: da919c8d-c209-426a-9422-8e8bfe77f07e
+
+	partition diabetes_risk_stacking = m
+		mode: import
+		source =
+			let
+				Source = DatabricksMultiCloud.Catalogs("dbc-93916528-90f8.cloud.databricks.com", "/sql/1.0/warehouses/6cd9ffe6ba1a7c82", [Catalog=null, Database=null, QueryTags=null, EnableAutomaticProxyDiscovery=null, Implementation="2.0", Protocol=null]),
+				workspace_Database = Source{[Name="workspace",Kind="Database"]}[Data],
+				gold_Schema = workspace_Database{[Name="gold",Kind="Schema"]}[Data],
+				diabetes_risk_stacking_View = gold_Schema{[Name="diabetes_risk_stacking",Kind="Table"]}[Data]
+			in
+				diabetes_risk_stacking_View
+
+	annotation PBI_ResultType = Table

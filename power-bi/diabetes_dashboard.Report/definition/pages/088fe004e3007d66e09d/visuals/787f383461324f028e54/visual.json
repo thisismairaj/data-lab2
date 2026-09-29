@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "787f383461324f028e54",
+  "position": {
+    "x": 780,
+    "y": 60,
+    "z": 1,
+    "height": 130,
+    "width": 360,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "gold_diabetes_prevalence_state"
+                    }
+                  },
+                  "Property": "States Covered"
+                }
+              },
+              "queryRef": "gold_diabetes_prevalence_state.States Covered",
+              "nativeQueryRef": "States Covered"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'States Covered'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "6b60c6df13324b55a12a",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "gold_diabetes_prevalence_state"
+              }
+            },
+            "Property": "States Covered"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

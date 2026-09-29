@@ -1,0 +1,102 @@
+table diabetes_comorbidity
+	lineageTag: 890a6b4a-40f4-49fb-aae3-a8eadebac942
+
+	column survey_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 5095bf7a-28b9-4c84-831d-02da1cbf6143
+		summarizeBy: sum
+		sourceColumn: survey_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column condition
+		dataType: string
+		lineageTag: 3726c6b9-130d-4b46-b5d2-f2a1f9d16531
+		summarizeBy: none
+		sourceColumn: condition
+
+		annotation SummarizationSetBy = Automatic
+
+	column condition_label
+		dataType: string
+		lineageTag: b9e9d004-5de9-4659-ac7b-a8cc508c79e9
+		summarizeBy: none
+		sourceColumn: condition_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column diabetes_group
+		dataType: string
+		lineageTag: c55d20ee-2c8c-4cdc-86b1-63be1ba539d3
+		summarizeBy: none
+		sourceColumn: diabetes_group
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_respondents
+		dataType: int64
+		formatString: 0
+		lineageTag: 473c7df7-03d9-4aa8-984a-468ab80ca19e
+		summarizeBy: sum
+		sourceColumn: valid_respondents
+
+		annotation SummarizationSetBy = Automatic
+
+	column condition_yes_n
+		dataType: int64
+		formatString: 0
+		lineageTag: e3020ef1-1a84-41e0-9aa2-0a5b1a2f9940
+		summarizeBy: sum
+		sourceColumn: condition_yes_n
+
+		annotation SummarizationSetBy = Automatic
+
+	column weighted_yes_sum
+		dataType: double
+		lineageTag: 059a4994-2272-425d-8b6a-92b48c039fae
+		summarizeBy: sum
+		sourceColumn: weighted_yes_sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column weighted_valid_sum
+		dataType: double
+		lineageTag: 970c4388-abd3-4890-8e0e-0f36c5441a31
+		summarizeBy: sum
+		sourceColumn: weighted_valid_sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column condition_pct_weighted
+		dataType: double
+		lineageTag: ce739336-87ed-488c-b6bd-ccf330cc50a2
+		summarizeBy: sum
+		sourceColumn: condition_pct_weighted
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Condition %' = ```
+			DIVIDE(SUM(diabetes_comorbidity[weighted_yes_sum]), SUM(diabetes_comorbidity[weighted_valid_sum]))
+			```
+		formatString: 0.0%
+		lineageTag: 863e4cac-8766-4a7c-b8a7-cfaa81da79b3
+
+	partition diabetes_comorbidity = m
+		mode: import
+		source =
+			let
+				Source = DatabricksMultiCloud.Catalogs("dbc-93916528-90f8.cloud.databricks.com", "/sql/1.0/warehouses/6cd9ffe6ba1a7c82", [Catalog=null, Database=null, QueryTags=null, EnableAutomaticProxyDiscovery=null, Implementation="2.0", Protocol=null]),
+				workspace_Database = Source{[Name="workspace",Kind="Database"]}[Data],
+				gold_Schema = workspace_Database{[Name="gold",Kind="Schema"]}[Data],
+				diabetes_comorbidity_View = gold_Schema{[Name="diabetes_comorbidity",Kind="Table"]}[Data]
+			in
+				diabetes_comorbidity_View
+
+	annotation PBI_ResultType = Table

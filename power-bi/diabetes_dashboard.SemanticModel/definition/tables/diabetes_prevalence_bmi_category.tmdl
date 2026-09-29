@@ -1,0 +1,97 @@
+table diabetes_prevalence_bmi_category
+	lineageTag: 7262519e-9f10-41e6-b0fc-850ea7140b31
+
+	column bmi_category_code
+		dataType: double
+		lineageTag: 0d55a68c-eaa5-40ee-878a-94f2fa0a5091
+		summarizeBy: sum
+		sourceColumn: bmi_category_code
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column survey_year
+		dataType: int64
+		formatString: 0
+		lineageTag: eb63d67b-c6e4-4b54-a19c-a7650146b6f9
+		summarizeBy: sum
+		sourceColumn: survey_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column bmi_category_label
+		dataType: string
+		lineageTag: 37376b1e-daa0-4ac0-af92-de22318ffeec
+		summarizeBy: none
+		sourceColumn: bmi_category_label
+		sortByColumn: bmi_category_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_respondents
+		dataType: int64
+		formatString: 0
+		lineageTag: e944d3f6-e7fd-46f8-8933-aeb4def4dd79
+		summarizeBy: sum
+		sourceColumn: valid_respondents
+
+		annotation SummarizationSetBy = Automatic
+
+	column diabetes_yes
+		dataType: int64
+		formatString: 0
+		lineageTag: b902eef1-d4fb-418b-ab8a-45ea54f05615
+		summarizeBy: sum
+		sourceColumn: diabetes_yes
+
+		annotation SummarizationSetBy = Automatic
+
+	column weighted_yes_sum
+		dataType: double
+		lineageTag: ab4daafd-2127-400b-b4e4-fbd4cd241f34
+		summarizeBy: sum
+		sourceColumn: weighted_yes_sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column weighted_valid_sum
+		dataType: double
+		lineageTag: 0c330c8e-9f27-4061-802a-e22cad2bd9bd
+		summarizeBy: sum
+		sourceColumn: weighted_valid_sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column prevalence_weighted_pct
+		dataType: double
+		lineageTag: dfddc461-0afe-4977-870d-d037204c0cb8
+		summarizeBy: sum
+		sourceColumn: prevalence_weighted_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'BMI Prevalence %' = ```
+			DIVIDE(SUM(diabetes_prevalence_bmi_category[weighted_yes_sum]), SUM(diabetes_prevalence_bmi_category[weighted_valid_sum]))
+			```
+		formatString: 0.0%
+		lineageTag: 42584852-1ff3-4c16-bc72-64ccee73766c
+
+	partition diabetes_prevalence_bmi_category = m
+		mode: import
+		source =
+			let
+				Source = DatabricksMultiCloud.Catalogs("dbc-93916528-90f8.cloud.databricks.com", "/sql/1.0/warehouses/6cd9ffe6ba1a7c82", [Catalog=null, Database=null, QueryTags=null, EnableAutomaticProxyDiscovery=null, Implementation="2.0", Protocol=null]),
+				workspace_Database = Source{[Name="workspace",Kind="Database"]}[Data],
+				gold_Schema = workspace_Database{[Name="gold",Kind="Schema"]}[Data],
+				diabetes_prevalence_bmi_category_View = gold_Schema{[Name="diabetes_prevalence_bmi_category",Kind="Table"]}[Data]
+			in
+				diabetes_prevalence_bmi_category_View
+
+	annotation PBI_ResultType = Table

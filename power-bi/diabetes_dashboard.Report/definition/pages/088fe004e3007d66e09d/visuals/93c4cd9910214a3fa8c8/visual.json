@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "93c4cd9910214a3fa8c8",
+  "position": {
+    "x": 640,
+    "y": 790,
+    "z": 1,
+    "height": 270,
+    "width": 600,
+    "tabOrder": 12
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "diabetes_risk_stacking"
+                    }
+                  },
+                  "Property": "risk_factor_count"
+                }
+              },
+              "queryRef": "diabetes_risk_stacking.risk_factor_count",
+              "nativeQueryRef": "risk_factor_count"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "diabetes_risk_stacking"
+                    }
+                  },
+                  "Property": "Risk Prevalence %"
+                }
+              },
+              "queryRef": "diabetes_risk_stacking.Risk Prevalence %",
+              "nativeQueryRef": "Risk Prevalence %"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Prevalence by number of risk factors (obesity + smoking + inactivity)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

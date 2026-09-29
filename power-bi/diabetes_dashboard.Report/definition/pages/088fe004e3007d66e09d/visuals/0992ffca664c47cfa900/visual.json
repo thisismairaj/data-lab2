@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "0992ffca664c47cfa900",
+  "position": {
+    "x": 1260,
+    "y": 910,
+    "z": 0,
+    "height": 150,
+    "width": 640,
+    "tabOrder": 14
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Weighted % = sum(weighted yes) / sum(weighted valid), never an average of row-level percentages - correct at any grouping (state, year, or both). Comorbidity and risk-factor associations are not adjusted for age, which independently drives several of the same conditions.",
+                    "textStyle": {
+                      "fontSize": "10px"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "6b72cb795b9f4350bf26",
+  "position": {
+    "x": 20,
+    "y": 790,
+    "z": 1,
+    "height": 270,
+    "width": 600,
+    "tabOrder": 11
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "diabetes_comorbidity"
+                    }
+                  },
+                  "Property": "condition_label"
+                }
+              },
+              "queryRef": "diabetes_comorbidity.condition_label",
+              "nativeQueryRef": "condition_label"
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "diabetes_comorbidity"
+                    }
+                  },
+                  "Property": "diabetes_group"
+                }
+              },
+              "queryRef": "diabetes_comorbidity.diabetes_group",
+              "nativeQueryRef": "diabetes_group"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "diabetes_comorbidity"
+                    }
+                  },
+                  "Property": "Condition %"
+                }
+              },
+              "queryRef": "diabetes_comorbidity.Condition %",
+              "nativeQueryRef": "Condition %"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Comorbidity rate: diabetic vs non-diabetic'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
