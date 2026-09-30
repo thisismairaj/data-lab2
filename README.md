@@ -66,4 +66,4 @@ delivered as opinion. Full status: `docs/manager_report.md` §2.
 
 1. `docs/brief.md` — the original brief this project answers
 2. `docs/manager_report.md` — full evidence report, all numbers sourced
-3. `docs/scope_and_gaps.md` — honest list of where this deviates from the brief
+3. `docs/stakeholder_overview.md` — narrative overview, including scope deviations from the brief
