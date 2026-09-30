@@ -13,6 +13,9 @@ data/
 *.parquet
 *.duckdb
 
+# power-bi: generated project output + generator scripts, kept local
+power-bi/
+
 # OS / editor
 .DS_Store
 Thumbs.db
