@@ -16,6 +16,18 @@ data/
 # power-bi: generated project output + generator scripts, kept local
 power-bi/
 
+# working notes / agent instructions: kept local, not shown publicly
+/CLAUDE.md
+docs/learning_log.md
+docs/scope_and_gaps.md
+docs/metrics.md
+docs/phase_plan.md
+docs/dashboard_plan.md
+docs/schema_contract.md
+docs/codebook15_llcp.json
+docs/codebook15_llcp.md
+docs/codebook15_llcp.pdf
+
 # OS / editor
 .DS_Store
 Thumbs.db
