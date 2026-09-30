@@ -4,10 +4,7 @@ Same public health dataset, built into the same medallion pipeline on
 **Databricks** and **Snowflake** in parallel, to prove both produce identical
 results from identical rules — evidence for a platform decision, not opinion.
 
-Full evidence report: [`docs/manager_report.md`](docs/manager_report.md).
-Narrative overview: [`docs/stakeholder_overview.md`](docs/stakeholder_overview.md).
-
-## Results (real, measured — see `docs/manager_report.md` for sources)
+## Results (real, measured)
 
 - **2,380,047 rows** (CDC BRFSS, 2011–2015) loaded identically on both platforms
 - **29,402 / 29,402** gold-table values match, value by value, across both platforms
@@ -21,8 +18,7 @@ Narrative overview: [`docs/stakeholder_overview.md`](docs/stakeholder_overview.m
 ## Architecture
 
 Both platforms use the same layered pattern: **bronze → silver → quarantine → gold**,
-with a gate that stops the run if the numbers don't reconcile. Rationale in
-`docs/manager_report.md` §4 ("Why we chose medallion architecture").
+with a gate that stops the run if the numbers don't reconcile.
 
 ```
 5 source files
@@ -45,7 +41,6 @@ with a gate that stops the run if the numbers don't reconcile. Rationale in
 
 | Path | Contents |
 |---|---|
-| `docs/` | Brief, schema contract, metrics definitions, manager report, stakeholder overview, learning log, scope/gaps |
 | `sql/databricks/` | Bronze/silver/gold SQL for the Databricks Free Edition build |
 | `sql/lakeflow/` | Databricks Lakeflow declarative pipeline (trial workspace) |
 | `sql/snowflake/` | Bronze/silver/gold SQL for the Snowflake build |
@@ -57,13 +52,6 @@ and are git-ignored — not tracked in this repo.
 
 ## Status
 
-Day 2 of a 3-day brief timebox. Five of six brief requirements have real,
-measured evidence behind them; the platform recommendation itself is
-deliberately deferred until the remaining Phase 5–6 metrics exist, rather than
-delivered as opinion. Full status: `docs/manager_report.md` §2.
-
-## Where to start reading
-
-1. `docs/brief.md` — the original brief this project answers
-2. `docs/manager_report.md` — full evidence report, all numbers sourced
-3. `docs/stakeholder_overview.md` — narrative overview, including scope deviations from the brief
+Five of six core requirements have real, measured evidence behind them; a
+formal platform recommendation is held back until the remaining latency/cost
+metrics exist, rather than delivered as opinion.
