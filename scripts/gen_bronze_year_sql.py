@@ -10,8 +10,9 @@ read by Databricks from the volume, not from here).
 """
 import csv, os
 
-ARCHIVE = r"C:\Users\muham\Downloads\archive"
-OUT_DIR = r"D:\data-lab2\sql\databricks"
+HERE = os.path.dirname(os.path.abspath(__file__))
+ARCHIVE = os.environ.get("BRFSS_ARCHIVE_DIR", os.path.join(HERE, "..", "data", "archive"))
+OUT_DIR = os.path.join(HERE, "..", "sql", "databricks")
 RUN_ID = "phase2-5yr-extension-20260929"
 
 YEARS = [2011, 2012, 2013, 2014]

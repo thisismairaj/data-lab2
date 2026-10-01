@@ -8,9 +8,10 @@ import sys, time
 from dotenv import load_dotenv
 import os, snowflake.connector
 
-ARCHIVE = r"C:\Users\muham\Downloads\archive"
+HERE = os.path.dirname(os.path.abspath(__file__))
+ARCHIVE = os.environ.get("BRFSS_ARCHIVE_DIR", os.path.join(HERE, "..", "data", "archive"))
 
-load_dotenv(r"D:\data-lab2\.env", override=True)
+load_dotenv(os.path.join(HERE, "..", ".env"), override=True)
 con = snowflake.connector.connect(
     account=os.environ["SNOWFLAKE_ACCOUNT"],
     user=os.environ["SNOWFLAKE_USER"],

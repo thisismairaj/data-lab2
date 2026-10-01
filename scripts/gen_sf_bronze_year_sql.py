@@ -7,8 +7,9 @@ provenance. Column list/order generated from each year's real CSV header, not ha
 """
 import csv, os
 
-ARCHIVE = r"C:\Users\muham\Downloads\archive"
-OUT_DIR = r"D:\data-lab2\sql\snowflake"
+HERE = os.path.dirname(os.path.abspath(__file__))
+ARCHIVE = os.environ.get("BRFSS_ARCHIVE_DIR", os.path.join(HERE, "..", "data", "archive"))
+OUT_DIR = os.path.join(HERE, "..", "sql", "snowflake")
 RUN_ID = "phase2-5yr-extension-20260929"
 YEARS = [2011, 2012, 2013, 2014]
 LETTER = {2011: "a", 2012: "b", 2013: "c", 2014: "d"}

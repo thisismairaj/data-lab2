@@ -3,9 +3,9 @@ Spark - genuinely outside both platforms, reading BRFSS's shared gold table via 
 open Delta Sharing protocol. Times connection, lists tables, reads data, checks type
 fidelity against known-verified numbers from earlier in this project.
 """
-import time, delta_sharing
+import os, time, delta_sharing
 
-CONFIG = r"C:\Users\muham\Downloads\config.share"
+CONFIG = os.environ.get("DELTA_SHARE_CONFIG", "./config.share")
 
 t0 = time.perf_counter()
 client = delta_sharing.SharingClient(CONFIG)

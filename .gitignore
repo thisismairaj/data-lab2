@@ -16,24 +16,13 @@ data/
 # power-bi: generated project output + generator scripts, kept local
 power-bi/
 
-# working notes / agent instructions: kept local, not shown publicly
+# working notes: kept local, not shown publicly
+# (blanket docs/ instead of a per-file list - the per-file list missed
+# manager_report.pdf when it was added, which is exactly the failure mode
+# this avoids for every future file)
 /CLAUDE.md
-docs/learning_log.md
-docs/scope_and_gaps.md
-docs/metrics.md
-docs/phase_plan.md
-docs/dashboard_plan.md
-docs/schema_contract.md
-docs/codebook15_llcp.json
-docs/codebook15_llcp.md
-docs/codebook15_llcp.pdf
-docs/brief.md
-docs/manager_report.md
-docs/stakeholder_overview.md
+docs/
 
 # OS / editor
 .DS_Store
 Thumbs.db
-
-# third-party reference notebooks (kept local by user decision)
-docs/*.ipynb
