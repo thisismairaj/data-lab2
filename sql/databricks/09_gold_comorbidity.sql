@@ -1,6 +1,6 @@
 -- Databricks: gold.diabetes_comorbidity, built from silver.brfss_clean JOINed back to
 -- bronze.brfss_2015 for 10 extra condition columns that are NOT part of the 18-column
--- contract in docs/schema_contract.md. Deliberately NOT added to the silver build: these
+-- contract in schema_contract.md (local notes). Deliberately NOT added to the silver build: these
 -- columns have no quarantine rules defined for them, and widening the core contract mid-
 -- project would be scope creep. Instead we join onto bronze directly for just this table,
 -- reusing silver's already-quarantined diabetes_code/final_weight/keys - so a BMI-outlier
@@ -13,7 +13,7 @@
 
 CREATE OR REPLACE TABLE workspace.gold.diabetes_comorbidity AS
 WITH base AS (
-  -- Join key: (state_fips, seqno) - proven unique on both sides (docs/schema_contract.md
+  -- Join key: (state_fips, seqno) - proven unique on both sides (schema_contract.md (local notes)
   -- primary key section; bronze itself was checked unique during Step 1 profiling), so this
   -- join can only produce exactly one bronze row per silver row - no fan-out risk.
   SELECT

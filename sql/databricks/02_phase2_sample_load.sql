@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS workspace.bronze.brfss_2015_sample;
 
 -- schema is STRUCT<`_STATE` STRING, `FMONTH` STRING, ... > (all 330 source columns as STRING;
 -- generated from the CSV header by scripts, not hand-typed here to keep this file readable).
--- See docs/schema_contract.md: bronze keeps every source column as text, unmodified.
+-- See schema_contract.md (local notes): bronze keeps every source column as text, unmodified.
 CREATE TABLE workspace.bronze.brfss_2015_sample AS
 SELECT
   *,
@@ -26,7 +26,7 @@ FROM read_files(
   schema => 'STRUCT<... all 330 source columns as STRING ...>'
 );
 
--- Verification queries (see docs/metrics.md Q1-Q3):
+-- Verification queries (see metrics.md (local notes) Q1-Q3):
 SELECT count(*) FROM workspace.bronze.brfss_2015_sample;                 -- expect 50000
 SELECT count(*) FROM (
   SELECT column_name FROM workspace.information_schema.columns

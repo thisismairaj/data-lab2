@@ -25,7 +25,7 @@ ORDER BY c.survey_year, c.bmi_category_code;
 -- ---- Verification ----
 SELECT survey_year, count(*) FROM workspace.gold.diabetes_prevalence_bmi_category GROUP BY survey_year ORDER BY 1;
 SELECT count(*) FROM workspace.gold.diabetes_prevalence_bmi_category WHERE bmi_category_label IS NULL;                 -- expect 0
--- Per-year total must match silver's per-year row count (docs/scope_and_gaps.md known totals)
+-- Per-year total must match silver's per-year row count (scope_and_gaps.md (local notes) known totals)
 SELECT survey_year, sum(valid_respondents) + sum(excluded_dont_know_refused_blank) AS total
 FROM workspace.gold.diabetes_prevalence_bmi_category GROUP BY survey_year ORDER BY survey_year;
 SELECT survey_year, count(*) FROM workspace.silver.brfss_clean GROUP BY survey_year ORDER BY survey_year;

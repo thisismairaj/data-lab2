@@ -6,7 +6,7 @@
 -- WITHOUT dropping anything here (no ON VIOLATION clause = observe only). The actual
 -- clean/quarantine split still happens explicitly in the next file, same as our manual
 -- build - expectations alone don't give us a queryable quarantine table with reasons,
--- which docs/schema_contract.md requires.
+-- which schema_contract.md (local notes) requires.
 CREATE OR REFRESH STREAMING TABLE silver_staged (
   CONSTRAINT plausible_bmi   EXPECT (bmi IS NULL OR (bmi BETWEEN 12 AND 70)),   -- R1
   CONSTRAINT positive_weight EXPECT (final_weight > 0),                         -- W1

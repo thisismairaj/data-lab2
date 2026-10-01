@@ -3,7 +3,7 @@
 -- see git history for that run's results (49,980 clean / 20 quarantine / 6 states, all reconciled).
 -- Now pointed at the full table for the real build.
 -- Every source row ends in exactly one outcome: clean, corrected, quarantined, rejected (none here; rejected = structurally unreadable, which read_files would already have failed on).
--- Rules and their IDs match docs/schema_contract.md.
+-- Rules and their IDs match schema_contract.md (local notes).
 --
 -- Pipeline shape (4 CREATE TABLE steps, each building on the last):
 --   1. _staged_2015    - cast/clean each column on its own (corrections D1, D2, Z1 applied here, unconditionally)
@@ -32,7 +32,7 @@ SELECT
 
   -- The rest of the code columns: bronze holds them as text (e.g. '3.0'); a plain CAST to
   -- DOUBLE turns that into a real number. No range/validity check happens here - that's C1,
-  -- one step later, once every column has a number to check. See docs/schema_contract.md
+  -- one step later, once every column has a number to check. See schema_contract.md (local notes)
   -- for what each code means (e.g. diabetes_code 1=yes, 3=no, 7=don't know, 9=refused - the
   -- "don't know"/"refused" codes are kept as-is, never turned into NULL or guessed at).
   CAST(SEX AS DOUBLE)        AS sex_code,
@@ -75,12 +75,12 @@ SELECT *,
   -- from it, and a weight of 0 or less isn't a real weight, so this is never "corrected" to 1.
   (final_weight IS NULL OR final_weight <= 0)                              AS hit_w1_weight,
   -- R1: BMI outside the plausible range the user approved (12.00-70.00). Chosen 2026-09-25;
-  -- see docs/schema_contract.md for the alternatives considered and the measured counts.
+  -- see schema_contract.md (local notes) for the alternatives considered and the measured counts.
   -- BLANK (NULL bmi) is NOT a hit here - only implausible non-null values are.
   (bmi IS NOT NULL AND (bmi < 12 OR bmi > 70))                             AS hit_r1_bmi,
   -- S1: state_fips isn't one of the 53 codes the 2015 codebook actually defines (50 states +
   -- DC(11) + Guam(66) + Puerto Rico(72); FIPS skips 03,07,14,43,52 by design, hence the gaps
-  -- in the list below). This list was read out of docs/codebook15_llcp.md, not guessed.
+  -- in the list below). This list was read out of codebook15_llcp.md (local notes), not guessed.
   (state_fips NOT IN
     ('01','02','04','05','06','08','09','10','11','12','13','15','16','17','18','19',
      '20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35',
@@ -88,7 +88,7 @@ SELECT *,
      '54','55','56','66','72'))                                           AS hit_s1_state,
   -- C1: each code column must be either NULL (a real BLANK in the source) or a code that
   -- actually exists in the codebook for that variable - e.g. diabetes_code must be one of
-  -- 1,2,3,4,7,9 (docs/codebook15_llcp.md, DIABETE3). A code outside that set would mean either
+  -- 1,2,3,4,7,9 (codebook15_llcp.md (local notes), DIABETE3). A code outside that set would mean either
   -- a codebook mismatch or a load bug, and either way should never be silently accepted.
   (sex_code IS NOT NULL AND sex_code NOT IN (1,2))                         AS hit_c1_sex,
   (age_group_code IS NOT NULL AND age_group_code NOT IN
@@ -108,7 +108,7 @@ FROM workspace.silver._staged_2015;
 
 CREATE OR REPLACE TABLE workspace.silver._keyed_2015 AS
 SELECT *,
-  -- K1: the primary key is (state_fips, survey_year, seqno) - see docs/schema_contract.md.
+  -- K1: the primary key is (state_fips, survey_year, seqno) - see schema_contract.md (local notes).
   -- SEQNO alone is NOT unique (it restarts per state), which is why state_fips is part of the
   -- key. This window function counts how many rows share a key; >1 means a genuine duplicate,
   -- which is quarantined rather than picking a "winner" (we have no basis to choose one).
@@ -119,7 +119,7 @@ FROM workspace.silver._checked_2015;
 -- were already applied above; they are always-on fixes, not conditional, so every surviving
 -- row is at least D1+Z1-corrected).
 --
--- Shape of this table matches docs/schema_contract.md's "quarantine table" spec exactly
+-- Shape of this table matches schema_contract.md (local notes)'s "quarantine table" spec exactly
 -- (record_id, dataset_id, run_id, rule_id, severity, raw_payload, reason, status, resolved_by)
 -- so the same structure can be reused for any future dataset, not just BRFSS.
 CREATE OR REPLACE TABLE workspace.silver.brfss_quarantine AS
@@ -163,8 +163,8 @@ WHERE NOT (hit_d3_bad_date OR hit_d4_year OR hit_w1_weight OR hit_r1_bmi OR hit_
    OR hit_c1_hlthpln OR hit_c1_smoker OR hit_c1_exer OR hit_c1_diab OR hit_c1_bmicat
    OR hit_k1_dup_pk);
 
--- ---- Publication gate checks (docs/schema_contract.md) ----
--- A pipeline run is only trusted once these come back as expected; see docs/metrics.md
+-- ---- Publication gate checks (schema_contract.md (local notes)) ----
+-- A pipeline run is only trusted once these come back as expected; see metrics.md (local notes)
 -- (Q2 outcomes_sum_check, Q5 quarantine_rate, Q11 pk_duplicates) for how these get recorded.
 
 -- Q2: nothing lost or double-counted between bronze and silver - the two counts must be equal.
@@ -176,7 +176,7 @@ SELECT (SELECT count(*) FROM workspace.silver.brfss_clean)
 -- Q5: how many rows were quarantined. Run on 2026-09-28 against the full 441,456 rows:
 -- 1,035 rows, all rule R1, i.e. 0.2345% - under the 0.5% gate agreed for this dataset, and it
 -- matches the count predicted from profiling the raw file BEFORE any of this SQL was written
--- (docs/scope_and_gaps.md), which is a strong sign the logic above is correct rather than
+-- (scope_and_gaps.md (local notes)), which is a strong sign the logic above is correct rather than
 -- coincidentally passing.
 SELECT count(*) FROM workspace.silver.brfss_quarantine;
 

@@ -1,8 +1,8 @@
 """Generates one bronze CTAS SQL file per BRFSS year (2011-2014), matching the exact
 pattern already used and verified for 2015 (sql/databricks/05_phase2_full_load.sql):
-every source column stays STRING (bronze = raw, untouched - see docs/schema_contract.md),
+every source column stays STRING (bronze = raw, untouched - see schema_contract.md (local notes)),
 the STRUCT schema is generated from each file's own real CSV header (not hand-typed,
-since column count differs every year: 454/359/336/279/330 - see docs/scope_and_gaps.md),
+since column count differs every year: 454/359/336/279/330 - see scope_and_gaps.md (local notes)),
 and three load-metadata columns are added (_source_file, _loaded_at, _run_id).
 
 Run once locally (reads the local CSVs only for their header row - the actual data is
@@ -31,7 +31,7 @@ for year in YEARS:
     sql = f'''-- Databricks Free Edition: bronze for {year}, same pattern as 05_phase2_full_load.sql
 -- (2015). Part of the 5-year extension (2026-09-29) - each year gets its own bronze
 -- table because each year's CSV has a different column set ({ncols} columns for {year};
--- see docs/scope_and_gaps.md for the full 454/359/336/279/330 breakdown). Silver unions
+-- see scope_and_gaps.md (local notes) for the full 454/359/336/279/330 breakdown). Silver unions
 -- all 5 bronze tables together (see 03b_silver_multiyear.sql).
 
 DROP TABLE IF EXISTS workspace.bronze.brfss_{year};
@@ -49,7 +49,7 @@ FROM read_files(
   schema => '{schema}'
 );
 
--- Verification (docs/scope_and_gaps.md Step 1 profile numbers)
+-- Verification (scope_and_gaps.md (local notes) Step 1 profile numbers)
 SELECT count(*) FROM workspace.bronze.brfss_{year};                             -- expect the {year} row count from scope_and_gaps.md
 SELECT count(*) FROM (
   SELECT column_name FROM workspace.information_schema.columns

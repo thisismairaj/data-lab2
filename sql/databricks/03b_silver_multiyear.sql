@@ -1,6 +1,6 @@
 -- Databricks Free Edition: 5-year silver + quarantine (2011-2015), supersedes the
 -- 2015-only 03_silver_and_quarantine.sql (kept in git history as the proof-of-concept
--- run). Same rule set, same column casts (docs/schema_contract.md) - the only change is
+-- run). Same rule set, same column casts (schema_contract.md (local notes)) - the only change is
 -- a per-year staging step (each year is its own bronze table, different source schema)
 -- unioned together before the shared _checked/_keyed/publish logic, which is otherwise
 -- untouched from the 2015-only version.
@@ -156,11 +156,11 @@ SELECT *,
   -- NULL, which would crash the whole CREATE TABLE the moment 2011 (63 such rows) is
   -- in scope. try_to_date returns NULL on a bad date, which is exactly what hit_d3
   -- below needs - the 2015-only build never hit this because 2015 has no impossible
-  -- dates (see docs/scope_and_gaps.md for the per-year counts: 63/1/0/9/0).
+  -- dates (see scope_and_gaps.md (local notes) for the per-year counts: 63/1/0/9/0).
   try_to_date(idate_padded, 'MMddyyyy')                                    AS interview_date,
   (try_to_date(idate_padded, 'MMddyyyy') IS NULL)                          AS hit_d3_bad_date,
   -- D4: year must be the survey year or the following year (interviews can run into
-  -- Jan-Mar of the next year - see docs/scope_and_gaps.md). Generalized from a hardcoded
+  -- Jan-Mar of the next year - see scope_and_gaps.md (local notes)). Generalized from a hardcoded
   -- (2015,2016) to (survey_year, survey_year+1) so this rule means the same thing for
   -- every year, not just 2015.
   (try_to_date(idate_padded, 'MMddyyyy') IS NOT NULL
@@ -234,7 +234,7 @@ WHERE NOT (hit_d3_bad_date OR hit_d4_year OR hit_w1_weight OR hit_r1_bmi OR hit_
    OR hit_c1_hlthpln OR hit_c1_smoker OR hit_c1_exer OR hit_c1_diab OR hit_c1_bmicat
    OR hit_k1_dup_pk);
 
--- ---- Publication gate checks, per year and combined (docs/metrics.md Q2, Q5, Q11) ----
+-- ---- Publication gate checks, per year and combined (metrics.md (local notes) Q2, Q5, Q11) ----
 
 -- Q2 per year: bronze count must equal clean+quarantine for that year, for every year
 -- (not just the total - a year-by-year check catches a bug that only affects one year,
@@ -268,5 +268,5 @@ SELECT count(*) - count(DISTINCT state_fips, survey_year, seqno)
 FROM workspace.silver.brfss_clean;
 
 -- Row count by year in the published clean table - sanity check against
--- docs/scope_and_gaps.md's known per-year totals (506467/475687/491773/464664/441456)
+-- scope_and_gaps.md (local notes)'s known per-year totals (506467/475687/491773/464664/441456)
 SELECT survey_year, count(*) FROM workspace.silver.brfss_clean GROUP BY survey_year ORDER BY survey_year;

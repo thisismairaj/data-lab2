@@ -1,7 +1,7 @@
 -- Databricks: gold.diabetes_prevalence_age_group, built from silver.brfss_clean.
 -- Same shape and logic as 04_gold.sql (diabetes_prevalence_state), just grouped by
 -- age_group_code instead of state_fips. Meant to be run by hand in a notebook to learn
--- the pattern - see docs/learning_log.md for the walkthrough.
+-- the pattern - see learning_log.md (local notes) for the walkthrough.
 
 CREATE OR REPLACE TABLE workspace.gold.diabetes_prevalence_age_group AS
 SELECT

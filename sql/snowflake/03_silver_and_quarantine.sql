@@ -68,7 +68,7 @@ SELECT *,
   -- R1: BMI outside 12.00-70.00, the range the user explicitly approved. BLANK (NULL) is
   -- not a hit - only implausible non-null values are.
   (BMI IS NOT NULL AND (BMI < 12 OR BMI > 70))                            AS HIT_R1_BMI,
-  -- S1: same 53-code list as Databricks, copied exactly from docs/codebook15_llcp.md.
+  -- S1: same 53-code list as Databricks, copied exactly from codebook15_llcp.md (local notes).
   (STATE_FIPS NOT IN
     ('01','02','04','05','06','08','09','10','11','12','13','15','16','17','18','19',
      '20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35',
@@ -102,7 +102,7 @@ FROM SILVER.CHECKED;
 
 -- Publish: quarantine = any rule hit. Same quarantine table shape as Databricks
 -- (record_id, dataset_id, run_id, rule_id, severity, raw_payload, reason, status,
--- resolved_by) - docs/schema_contract.md's spec, reusable for any dataset.
+-- resolved_by) - schema_contract.md (local notes)'s spec, reusable for any dataset.
 CREATE OR REPLACE TABLE SILVER.BRFSS_QUARANTINE AS
 SELECT
   SEQNO AS RECORD_ID, 'brfss_2015' AS DATASET_ID, BRONZE_RUN_ID AS RUN_ID,

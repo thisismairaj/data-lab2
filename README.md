@@ -47,8 +47,7 @@ with a gate that stops the run if the numbers don't reconcile.
 | `scripts/` | SQL generators, platform deploy scripts, cross-platform metric comparison |
 | `databricks_bundle/` | Databricks Asset Bundle (dev/staging/prod targets), deployed as code |
 
-Power BI project files (`.pbip`) are generated locally from `sql/` gold tables
-and are git-ignored — not tracked in this repo.
+Power BI project files (`.pbip`) are generated locally from `sql/` gold tables.
 
 ## Status
 

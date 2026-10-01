@@ -3,7 +3,7 @@ mirroring sql/snowflake/02_phase2_bronze_load.sql (2015) exactly in shape: an ex
 VARCHAR column list (Snowflake has no single-string STRUCT shortcut like Databricks'
 read_files), a positional COPY INTO ($1..$N in CSV column order), METADATA$FILENAME for
 provenance. Column list/order generated from each year's real CSV header, not hand-typed
-(column count differs every year: 454/359/336/279/330 - docs/scope_and_gaps.md).
+(column count differs every year: 454/359/336/279/330 - scope_and_gaps.md (local notes)).
 """
 import csv, os
 
@@ -27,7 +27,7 @@ for year in YEARS:
     sql = f'''-- Snowflake: bronze for {year}, same pattern as 02_phase2_bronze_load.sql (2015).
 -- Part of the 5-year extension (2026-09-29) - each year gets its own bronze table
 -- because each year's CSV has a different column set ({len(cols)} columns for {year};
--- see docs/scope_and_gaps.md). Silver unions all 5 bronze tables together.
+-- see scope_and_gaps.md (local notes)). Silver unions all 5 bronze tables together.
 --
 -- The file must be uploaded to the stage first (client-side, via the Python connector -
 -- see scripts/sf_upload_stage.py):

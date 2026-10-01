@@ -1,5 +1,5 @@
 -- Lakeflow Declarative Pipeline: the actual clean/quarantine split.
--- Same rule set as the manual build (docs/schema_contract.md), just S1/K1/C1 left out of
+-- Same rule set as the manual build (schema_contract.md (local notes)), just S1/K1/C1 left out of
 -- this first cut to keep the demo focused - R1 (bmi range) is the one rule that actually
 -- fires in this dataset, so it's the one that matters for proving the split works.
 -- Both tables are STREAMING TABLEs so they grow incrementally as bronze grows, same as

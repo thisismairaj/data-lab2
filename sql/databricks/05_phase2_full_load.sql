@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS workspace.bronze.brfss_2015;
 -- CREATE TABLE ... AS SELECT (CTAS): read the CSV once, materialize it as a managed
 -- Delta table. We do NOT use COPY INTO here because CTAS is simpler for a one-shot
 -- full reload; COPY INTO would matter once we're doing incremental loads (out of
--- scope for this project - see docs/scope_and_gaps.md).
+-- scope for this project - see scope_and_gaps.md (local notes)).
 CREATE TABLE workspace.bronze.brfss_2015 AS
 SELECT
   *,                                      -- every one of the 330 source columns, untouched, as text
@@ -28,14 +28,14 @@ FROM read_files(
   format => 'csv',
   header => true,
   -- read_files needs a full struct type, one `column_name` STRING per source column - a bare
-  -- 'STRING' is rejected (see docs/learning_log.md, "Day 2026-09-28"). The 330-entry struct
+  -- 'STRING' is rejected (see learning_log.md (local notes), "Day 2026-09-28"). The 330-entry struct
   -- string is generated from the CSV header by a script rather than typed by hand here, to
   -- avoid 330 lines of boilerplate; the principle - every bronze column stays STRING, nothing
-  -- is silently coerced - is the part that matters and is spelled out in docs/schema_contract.md.
+  -- is silently coerced - is the part that matters and is spelled out in schema_contract.md (local notes).
   schema => 'STRUCT<... all 330 source columns as STRING ...>'
 );
 
--- Verification queries (docs/metrics.md I1; docs/schema_contract.md publication gate)
+-- Verification queries (metrics.md (local notes) I1; schema_contract.md (local notes) publication gate)
 SELECT count(*) FROM workspace.bronze.brfss_2015;                             -- expect 441456
 SELECT count(*) FROM (
   SELECT column_name FROM workspace.information_schema.columns

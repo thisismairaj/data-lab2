@@ -1,5 +1,5 @@
 -- Databricks: gold.diabetes_prevalence_state, built from silver.brfss_clean.
--- Definitions match docs/schema_contract.md ("Gold: gold.diabetes_prevalence_state").
+-- Definitions match schema_contract.md (local notes) ("Gold: gold.diabetes_prevalence_state").
 -- One row per state. This is the table users/Power BI query - never silver or bronze directly.
 --
 -- Run on 2026-09-28 against the full 441,456-row silver table. Results: 53 rows (all states +
@@ -52,7 +52,7 @@ LEFT JOIN workspace.ref.codebook_values s
   ON s.variable = '_STATE' AND s.code = CAST(CAST(c.state_fips AS INT) AS STRING)
 GROUP BY c.state_fips, s.label, c.survey_year;
 
--- ---- Verification (docs/schema_contract.md publication gate) ----
+-- ---- Verification (schema_contract.md (local notes) publication gate) ----
 
 -- Expect <= 53: one row per state/DC/territory that actually appears in silver.
 SELECT count(*) FROM workspace.gold.diabetes_prevalence_state;

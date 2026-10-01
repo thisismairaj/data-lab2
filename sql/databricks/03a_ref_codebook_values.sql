@@ -3,7 +3,7 @@
 -- valid-code lists as the source for rule C1 and S1; gold uses it to decode _STATE to a name).
 --
 -- This table is NOT typed by hand: its 1,882 rows are generated from
--- docs/codebook15_llcp.json (itself generated from the CDC's codebook PDF - see
+-- codebook15_llcp.json (local notes) (itself generated from the CDC's codebook PDF - see
 -- scripts/pdf_to_md.py - and checked against 2015.csv: 330/330 variables matched, every
 -- variable's Frequency column sums to 441,456). One INSERT statement, built by a small
 -- Python script that walks the JSON and emits one row per (variable, code, label, frequency)
@@ -16,7 +16,7 @@ CREATE OR REPLACE TABLE workspace.ref.codebook_values (
                                -- range like '1 - 30' - kept as text because it isn't always a number
   label             STRING,   -- the meaning, e.g. 'Yes'
   source_frequency  BIGINT    -- how many 2015 respondents had this code, per the codebook (NULL if none given)
-) COMMENT 'Code to meaning lookup, generated from docs/codebook15_llcp.json';
+) COMMENT 'Code to meaning lookup, generated from codebook15_llcp.json (local notes)';
 
 -- INSERT INTO workspace.ref.codebook_values VALUES (...), (...), ... ;
 --   1,882 rows total - generated, not written by hand here. See the paragraph above.

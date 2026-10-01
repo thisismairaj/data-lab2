@@ -1,5 +1,5 @@
 -- Lakeflow Declarative Pipeline: the actual clean/quarantine split.
--- Same rule set as the manual build (docs/schema_contract.md). S1/K1 still left out (state
+-- Same rule set as the manual build (schema_contract.md (local notes)). S1/K1 still left out (state
 -- and duplicate-key checks never fire on this data's shape); C1 (code validity) ADDED
 -- 2026-09-29 after real corrupted rows were found once 2013/2014 data was loaded:
 -- bmi_category_code values like 2281.0 (should only be 1-4) and smoker_status_code=5

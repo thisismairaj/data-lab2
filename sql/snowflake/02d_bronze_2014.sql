@@ -1,7 +1,7 @@
 -- Snowflake: bronze for 2014, same pattern as 02_phase2_bronze_load.sql (2015).
 -- Part of the 5-year extension (2026-09-29) - each year gets its own bronze table
 -- because each year's CSV has a different column set (279 columns for 2014;
--- see docs/scope_and_gaps.md). Silver unions all 5 bronze tables together.
+-- see scope_and_gaps.md (local notes)). Silver unions all 5 bronze tables together.
 --
 -- The file must be uploaded to the stage first (client-side, via the Python connector -
 -- see scripts/sf_upload_stage.py):
