@@ -4,6 +4,9 @@ Same public health dataset, built into the same medallion pipeline on
 **Databricks** and **Snowflake** in parallel, to prove both produce identical
 results from identical rules — evidence for a platform decision, not opinion.
 
+The raw-data defects behind the quarantine/silver rules here are written up as a
+[Kaggle notebook](https://www.kaggle.com/code/thisismairaj/brfss-2011-2015-a-data-cleaning-case-study).
+
 ## Results (real, measured)
 
 - **2,380,047 rows** (CDC BRFSS, 2011–2015) loaded identically on both platforms
