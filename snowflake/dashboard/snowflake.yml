@@ -1,0 +1,15 @@
+# Deploy with: snow streamlit deploy --replace -c <connection>   (run from this folder)
+definition_version: 2
+entities:
+  brfss_dashboard:
+    type: streamlit
+    identifier:
+      name: BRFSS_DASHBOARD
+      database: BRFSS
+      schema: GOLD
+    query_warehouse: COMPUTE_WH
+    title: "Diabetes prevalence (CDC BRFSS)"
+    main_file: streamlit_app.py
+    artifacts:
+      - streamlit_app.py
+      - environment.yml

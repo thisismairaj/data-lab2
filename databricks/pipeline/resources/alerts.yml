@@ -1,0 +1,25 @@
+resources:
+  alerts:
+    quarantine_rate_alert:
+      display_name: 'BRFSS quarantine rate above 0.1%'
+      warehouse_id: 30410e206576b770
+      query_text: >-
+        SELECT round(100.0 * q.n / (c.n + q.n), 4) AS quarantine_rate_pct
+        FROM (SELECT count(*) AS n FROM brfss.silver.quarantine) q,
+             (SELECT count(*) AS n FROM brfss.silver.clean) c
+      evaluation:
+        comparison_operator: 'GREATER_THAN'
+        source:
+          name: 'quarantine_rate_pct'
+          display: 'quarantine_rate_pct'
+        threshold:
+          value:
+            double_value: 0.1
+        notification:
+          notify_on_ok: false
+          subscriptions:
+            - user_email: '${workspace.current_user.userName}'
+      schedule:
+        pause_status: 'UNPAUSED'
+        quartz_cron_schedule: '0 0 7 * * ?'
+        timezone_id: 'UTC'

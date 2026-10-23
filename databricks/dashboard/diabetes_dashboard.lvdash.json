@@ -1,0 +1,521 @@
+{
+  "datasets": [
+    {
+      "name": "ds_state",
+      "displayName": "Diabetes prevalence by state",
+      "queryLines": [
+        "SELECT survey_year, state_fips, state_name, valid_respondents, diabetes_yes, weighted_yes_sum, weighted_valid_sum, prevalence_weighted_pct / 100.0 AS prevalence_ratio\n",
+        "FROM gold.diabetes_prevalence_state\n",
+        "ORDER BY survey_year DESC, prevalence_ratio DESC"
+      ],
+      "columns": [
+        {
+          "displayName": "National Prevalence",
+          "description": "Survey-weighted share of respondents with diabetes",
+          "expression": "SUM(`weighted_yes_sum`) / SUM(`weighted_valid_sum`)"
+        },
+        {
+          "displayName": "Valid Respondents",
+          "description": "Respondents with a valid diabetes answer",
+          "expression": "SUM(`valid_respondents`)"
+        }
+      ]
+    },
+    {
+      "name": "ds_quarantine",
+      "displayName": "Quarantined rows by rule",
+      "queryLines": [
+        "SELECT rule_id, survey_year, count(*) AS quarantined_rows FROM silver.quarantine GROUP BY rule_id, survey_year\n"
+      ],
+      "columns": [
+        {
+          "displayName": "Quarantined Rows",
+          "description": "Rows held back by the quality rules, each with a reason",
+          "expression": "SUM(`quarantined_rows`)"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "overview",
+      "displayName": "Overview",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Diabetes prevalence in the US (CDC BRFSS)\n",
+                "\n",
+                "Survey-weighted share of adults reporting diabetes, by state and year. Every row that fails a quality rule is held in quarantine with a reason, never dropped."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-prevalence",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_state",
+                  "fields": [
+                    {
+                      "name": "measure(National Prevalence)",
+                      "expression": "MEASURE(`National Prevalence`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(National Prevalence)",
+                  "displayName": "National prevalence",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "National prevalence",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-respondents",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_state",
+                  "fields": [
+                    {
+                      "name": "measure(Valid Respondents)",
+                      "expression": "MEASURE(`Valid Respondents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Valid Respondents)",
+                  "displayName": "Valid respondents"
+                }
+              },
+              "frame": {
+                "title": "Valid respondents",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 3,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-quarantined",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_quarantine",
+                  "fields": [
+                    {
+                      "name": "measure(Quarantined Rows)",
+                      "expression": "MEASURE(`Quarantined Rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Quarantined Rows)",
+                  "displayName": "Quarantined rows"
+                }
+              },
+              "frame": {
+                "title": "Quarantined rows",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 3,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "trend-prevalence",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_state",
+                  "fields": [
+                    {
+                      "name": "survey_year",
+                      "expression": "`survey_year`"
+                    },
+                    {
+                      "name": "measure(National Prevalence)",
+                      "expression": "MEASURE(`National Prevalence`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "survey_year",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Survey year"
+                },
+                "y": {
+                  "fieldName": "measure(National Prevalence)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "National prevalence",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "National prevalence by year",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "quarantine-by-rule",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_quarantine",
+                  "fields": [
+                    {
+                      "name": "rule_id",
+                      "expression": "`rule_id`"
+                    },
+                    {
+                      "name": "measure(Quarantined Rows)",
+                      "expression": "MEASURE(`Quarantined Rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rule_id",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Rule failed"
+                },
+                "y": {
+                  "fieldName": "measure(Quarantined Rows)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Rows"
+                }
+              },
+              "frame": {
+                "title": "Quarantined rows by rule",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "map-prevalence",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_state",
+                  "fields": [
+                    {
+                      "name": "state_name",
+                      "expression": "`state_name`"
+                    },
+                    {
+                      "name": "measure(National Prevalence)",
+                      "expression": "MEASURE(`National Prevalence`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "choropleth-map",
+              "encodings": {
+                "region": {
+                  "regionType": "mapbox-v4-admin",
+                  "admin0": {
+                    "type": "value",
+                    "value": "United States",
+                    "geographicRole": "admin0-name"
+                  },
+                  "admin1": {
+                    "fieldName": "state_name",
+                    "type": "field",
+                    "geographicRole": "admin1-name"
+                  }
+                },
+                "color": {
+                  "fieldName": "measure(National Prevalence)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Prevalence"
+                }
+              },
+              "frame": {
+                "title": "Prevalence by state",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 7,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "table-states",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_state",
+                  "fields": [
+                    {
+                      "name": "survey_year",
+                      "expression": "`survey_year`"
+                    },
+                    {
+                      "name": "state_name",
+                      "expression": "`state_name`"
+                    },
+                    {
+                      "name": "valid_respondents",
+                      "expression": "`valid_respondents`"
+                    },
+                    {
+                      "name": "prevalence_ratio",
+                      "expression": "`prevalence_ratio`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "survey_year",
+                    "displayName": "Year"
+                  },
+                  {
+                    "fieldName": "state_name",
+                    "displayName": "State"
+                  },
+                  {
+                    "fieldName": "valid_respondents",
+                    "displayName": "Respondents"
+                  },
+                  {
+                    "fieldName": "prevalence_ratio",
+                    "displayName": "Prevalence",
+                    "format": {
+                      "type": "number-percent",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    }
+                  }
+                ]
+              },
+              "frame": {
+                "title": "States, highest prevalence first",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 11,
+            "width": 5,
+            "height": 7
+          }
+        }
+      ]
+    },
+    {
+      "name": "filters",
+      "displayName": "Filters",
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "filter-year",
+            "queries": [
+              {
+                "name": "ds_state_year",
+                "query": {
+                  "datasetName": "ds_state",
+                  "fields": [
+                    {
+                      "name": "survey_year",
+                      "expression": "`survey_year`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "survey_year",
+                    "displayName": "Year",
+                    "queryName": "ds_state_year"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Year"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#FCFCFC",
+        "dark": "#1F272D"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "fontColor": {
+        "light": "#11171C",
+        "dark": "#E8ECF0"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#8ACAFF"
+      },
+      "visualizationColors": [
+        "#0072B2",
+        "#E69F00",
+        "#009E73",
+        "#CC79A7",
+        "#D55E00"
+      ],
+      "widgetHeaderAlignment": "LEFT"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+bundle:
+  name: brfss-medallion
+
+include:
+  - resources/job.yml
+  - resources/pipeline.yml
+  - resources/alerts.yml
+
+targets:
+  dev:
+    # No `mode: development`: that mode prefixes every name with "[dev <user>]".
+    default: true
+    workspace:
+      host: https://dbc-79f69976-b8cd.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

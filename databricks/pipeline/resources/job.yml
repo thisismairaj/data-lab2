@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    medallion_job:
+      name: brfss-job
+      email_notifications:
+        on_failure:
+          - ${workspace.current_user.userName}
+      tasks:
+        - task_key: run_medallion_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.brfss_pipeline.id}
+      trigger:
+        pause_status: UNPAUSED
+        file_arrival:
+          url: /Volumes/brfss/bronze/landing/
+          min_time_between_triggers_seconds: 60
+          wait_after_last_change_seconds: 61

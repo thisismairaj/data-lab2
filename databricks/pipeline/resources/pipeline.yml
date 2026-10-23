@@ -1,0 +1,15 @@
+resources:
+  pipelines:
+    brfss_pipeline:
+      name: brfss-pipeline
+      catalog: brfss
+      schema: gold            # default schema; tables name their own layer (bronze., silver., gold.)
+      serverless: true
+      continuous: false
+      libraries:
+        - glob:
+            include: ../transformations/**
+      notifications:
+        - alerts: [on-update-failure, on-update-fatal-failure, on-flow-failure]
+          email_recipients:
+            - ${workspace.current_user.userName}

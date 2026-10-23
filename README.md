@@ -44,13 +44,17 @@ with a gate that stops the run if the numbers don't reconcile.
 
 | Path | Contents |
 |---|---|
-| `sql/databricks/` | Bronze/silver/gold SQL for the Databricks Free Edition build |
-| `sql/lakeflow/` | Databricks Lakeflow declarative pipeline (trial workspace) |
-| `sql/snowflake/` | Bronze/silver/gold SQL for the Snowflake build |
-| `scripts/` | SQL generators, platform deploy scripts, cross-platform metric comparison |
-| `databricks_bundle/` | Databricks Asset Bundle (dev/staging/prod targets), deployed as code |
+| `databricks/pipeline/` | Databricks Asset Bundle: Lakeflow pipeline SQL (`transformations/`: bronze, silver, gold), file-arrival job, quarantine-rate alert, `grants.sql`. Unity Catalog catalog `brfss`. |
+| `databricks/dashboard/` | AI/BI dashboard (dataset SQL plus the builder script) |
+| `databricks/self_service/` | Genie space definition and builder |
+| `snowflake/pipeline/` | Snowflake pipeline, run in order: setup and landing stage, bronze, silver (dynamic tables), gold, file-triggered ingest task, alerts, grants. Database `BRFSS`. |
+| `snowflake/self_service/` | Semantic view and Snowflake Intelligence agent |
+| `snowflake/dashboard/` | Streamlit in Snowflake app (dashboard plus Cortex Analyst questions) |
+| `scripts/` | SQL runners and helper scripts |
 
-Power BI project files (`.pbip`) are generated locally from `sql/` gold tables.
+Both platforms use the same names: `bronze.brfss_raw`, `silver.staged`, `silver.checked`, `silver.clean`, `silver.quarantine`, `gold.diabetes_prevalence_state`.
+
+Power BI project files (`.pbip`) are generated locally from the Databricks gold tables.
 
 ## Status
 
