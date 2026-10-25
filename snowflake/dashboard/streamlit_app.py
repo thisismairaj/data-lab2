@@ -6,7 +6,7 @@ survey-weighted: sum of weights with diabetes / sum of weights with a valid answ
 applied in SQL, so Snowflake does the work and only small results come back.
 
 Tabs: Dashboard (filters, KPIs, breakdowns), Ask a question (Cortex Analyst over the semantic
-view BRFSS.GOLD.BRFSS_DIABETES, showing the SQL it wrote), Data quality (quarantine by rule).
+view BRFSS.SEMANTIC.BRFSS_DIABETES, showing the SQL it wrote), Data quality (quarantine by rule).
 """
 import json
 
@@ -16,7 +16,7 @@ import pandas as pd
 import streamlit as st
 from snowflake.snowpark.context import get_active_session
 
-SEMANTIC_VIEW = "BRFSS.GOLD.BRFSS_DIABETES"
+SEMANTIC_VIEW = "BRFSS.SEMANTIC.BRFSS_DIABETES"
 G = "BRFSS.GOLD."
 session = get_active_session()
 

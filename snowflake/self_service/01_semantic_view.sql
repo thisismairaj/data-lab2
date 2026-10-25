@@ -4,7 +4,12 @@
 -- Cortex Analyst can answer across dimensions: for example prevalence among smokers aged 45 to 64
 -- in Texas. Quarantine is included so data-quality questions work too.
 
-CREATE OR REPLACE SEMANTIC VIEW BRFSS.GOLD.BRFSS_DIABETES
+-- Kept in its own schema, not GOLD: BI tools that browse GOLD (Power BI) try to read every object
+-- there as a table, and reading a semantic view that way fails.
+CREATE SCHEMA IF NOT EXISTS BRFSS.SEMANTIC;
+GRANT USAGE ON SCHEMA BRFSS.SEMANTIC TO ROLE PUBLIC;
+
+CREATE OR REPLACE SEMANTIC VIEW BRFSS.SEMANTIC.BRFSS_DIABETES
   TABLES (
     responses AS BRFSS.GOLD.FACT_SURVEY_RESPONSE PRIMARY KEY (response_id)
       COMMENT = 'One row per survey response (CDC BRFSS), with its survey weight and answers.',
@@ -100,4 +105,4 @@ CREATE OR REPLACE SEMANTIC VIEW BRFSS.GOLD.BRFSS_DIABETES
   )
   COMMENT = 'CDC BRFSS diabetes survey as a star schema: survey responses with state, age, sex, education, income, health, smoking, BMI and date; plus data-quality quarantine.';
 
-GRANT SELECT ON SEMANTIC VIEW BRFSS.GOLD.BRFSS_DIABETES TO ROLE PUBLIC;
+GRANT SELECT ON SEMANTIC VIEW BRFSS.SEMANTIC.BRFSS_DIABETES TO ROLE PUBLIC;

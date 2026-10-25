@@ -30,7 +30,7 @@ tools:
       description: "Diabetes prevalence by US state and survey year, survey respondents, and quarantined records with the rule each failed."
 tool_resources:
   brfss:
-    semantic_view: "BRFSS.GOLD.BRFSS_DIABETES"
+    semantic_view: "BRFSS.SEMANTIC.BRFSS_DIABETES"
     execution_environment:
       type: "warehouse"
       warehouse: "COMPUTE_WH"
