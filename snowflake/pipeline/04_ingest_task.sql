@@ -53,6 +53,8 @@ BEGIN
   ALTER DYNAMIC TABLE BRFSS.GOLD.DIABETES_PREVALENCE_BMI_CATEGORY REFRESH;
   ALTER DYNAMIC TABLE BRFSS.GOLD.DIABETES_COMORBIDITY REFRESH;
   ALTER DYNAMIC TABLE BRFSS.GOLD.DIABETES_RISK_STACKING REFRESH;
+  -- The star schema (03c_gold_star_schema.sql): DIM_DATE reads FACT_SURVEY_RESPONSE, so refreshing it refreshes both.
+  ALTER DYNAMIC TABLE BRFSS.GOLD.DIM_DATE REFRESH;
 EXCEPTION
   -- Pipeline failure email (the Databricks pipeline's on-update-failure notification):
   -- email the owner, then re-raise so the run still shows as FAILED in task history.
