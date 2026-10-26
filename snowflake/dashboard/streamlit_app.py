@@ -121,31 +121,61 @@ with tab_dash:
             tooltip=["Condition", "GRP", alt.Tooltip("Percent:Q", format=".1f")]))
 
 with tab_ask:
-    st.write("Ask about diabetes in plain English: by state, age, sex, income, education, smoking, BMI or year.")
-    examples = ["What is diabetes prevalence among adults aged 45 to 64 in Texas, by smoking status?",
-                "Which income band has the highest diabetes prevalence?",
+    # Follow-ups work because the whole conversation so far (questions and Cortex Analyst's
+    # answers) is kept in session memory and sent with every new question. Streamlit reruns the
+    # script on each interaction, so anything not in st.session_state would be forgotten.
+    if "chat" not in st.session_state:
+        st.session_state.chat = []      # messages in the Cortex Analyst API format
+        st.session_state.results = {}   # index of an analyst message -> its result table
+
+    st.write("Ask about diabetes in plain English: by state, age, sex, income, education, smoking, BMI "
+             "or year. Follow-up questions build on the previous answer.")
+    examples = ["Which income band has the highest diabetes prevalence?",
+                "What is diabetes prevalence among adults aged 45 to 64 in Texas, by smoking status?",
                 "Compare diabetes prevalence in Texas and California",
                 "How many records were quarantined, and why?"]
-    picked = st.radio("Try one of these, or type your own below:", examples, index=None)
-    question = st.chat_input("Your question") or picked
+    clicked = None
+    cols = st.columns(len(examples) + 1)
+    for col, ex in zip(cols, examples):
+        if col.button(ex, use_container_width=True):
+            clicked = ex
+    if cols[-1].button("New conversation", use_container_width=True):
+        st.session_state.chat, st.session_state.results = [], {}
+
+    # The conversation area is reserved here, above the input box, and filled after the new
+    # question is answered; so the newest answer appears just above where you type.
+    history = st.container()
+    question = st.chat_input("Your question, or a follow-up such as: now only in Texas") or clicked
     if question:
-        st.chat_message("user").write(question)
-        body = {"messages": [{"role": "user", "content": [{"type": "text", "text": question}]}],
-                "semantic_view": SEMANTIC_VIEW}
+        st.session_state.chat.append({"role": "user", "content": [{"type": "text", "text": question}]})
+        body = {"messages": st.session_state.chat, "semantic_view": SEMANTIC_VIEW}
         resp = _snowflake.send_snow_api_request("POST", "/api/v2/cortex/analyst/message", {}, {}, body, None, 50000)
         content = json.loads(resp["content"])
-        with st.chat_message("assistant"):
-            if resp["status"] >= 400:
-                st.error(content.get("message", "Cortex Analyst returned an error."))
-            else:
-                for part in content["message"]["content"]:
+        if resp["status"] >= 400:
+            st.session_state.chat.pop()   # keep the history valid: drop the question that failed
+            st.error(content.get("message", "Cortex Analyst returned an error."))
+        else:
+            st.session_state.chat.append({"role": "analyst", "content": content["message"]["content"]})
+            for part in content["message"]["content"]:
+                if part["type"] == "sql":
+                    st.session_state.results[len(st.session_state.chat) - 1] = session.sql(part["statement"]).to_pandas()
+
+    # Show the conversation oldest first, in the area above the input box.
+    with history:
+        chat = st.session_state.chat
+        for i, msg in enumerate(chat):
+            if msg["role"] == "user":
+                st.chat_message("user").write(msg["content"][0]["text"])
+                continue
+            with st.chat_message("assistant"):
+                for part in msg["content"]:
                     if part["type"] == "text":
                         st.write(part["text"])
                     elif part["type"] == "suggestions":
                         st.write("Did you mean: " + "; ".join(part["suggestions"]))
                     elif part["type"] == "sql":
-                        st.dataframe(session.sql(part["statement"]).to_pandas(), hide_index=True,
-                                     use_container_width=True)
+                        if i in st.session_state.results:
+                            st.dataframe(st.session_state.results[i], hide_index=True, use_container_width=True)
                         with st.expander("SQL that answered this"):
                             st.code(part["statement"], language="sql")
 
