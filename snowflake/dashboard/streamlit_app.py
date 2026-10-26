@@ -147,18 +147,29 @@ with tab_ask:
     history = st.container()
     question = st.chat_input("Your question, or a follow-up such as: now only in Texas") or clicked
     if question:
-        st.session_state.chat.append({"role": "user", "content": [{"type": "text", "text": question}]})
-        body = {"messages": st.session_state.chat, "semantic_view": SEMANTIC_VIEW}
-        resp = _snowflake.send_snow_api_request("POST", "/api/v2/cortex/analyst/message", {}, {}, body, None, 50000)
-        content = json.loads(resp["content"])
-        if resp["status"] >= 400:
-            st.session_state.chat.pop()   # keep the history valid: drop the question that failed
-            st.error(content.get("message", "Cortex Analyst returned an error."))
-        else:
-            st.session_state.chat.append({"role": "analyst", "content": content["message"]["content"]})
-            for part in content["message"]["content"]:
+        # Cortex Analyst needs strict turn-taking: user, analyst, user, ... So a question joins the
+        # history only together with its answer. If anything fails (an API error, a timeout while the
+        # warehouse wakes up, a query error), the history is left exactly as it was.
+        chat = st.session_state.chat
+        while chat and chat[-1]["role"] == "user":   # never send two questions in a row
+            chat.pop()
+        new_q = {"role": "user", "content": [{"type": "text", "text": question}]}
+        try:
+            body = {"messages": chat + [new_q], "semantic_view": SEMANTIC_VIEW}
+            resp = _snowflake.send_snow_api_request("POST", "/api/v2/cortex/analyst/message", {}, {}, body, None, 120000)
+            content = json.loads(resp["content"])
+            if resp["status"] >= 400:
+                raise RuntimeError(content.get("message", "Cortex Analyst returned an error."))
+            answer = {"role": "analyst", "content": content["message"]["content"]}
+            table = None
+            for part in answer["content"]:
                 if part["type"] == "sql":
-                    st.session_state.results[len(st.session_state.chat) - 1] = session.sql(part["statement"]).to_pandas()
+                    table = session.sql(part["statement"]).to_pandas()
+            chat += [new_q, answer]
+            if table is not None:
+                st.session_state.results[len(chat) - 1] = table
+        except Exception as err:
+            st.warning(f"That question did not go through, please ask it again. ({err})")
 
     # Show the conversation oldest first, in the area above the input box.
     with history:

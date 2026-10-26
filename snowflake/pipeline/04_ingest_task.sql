@@ -27,6 +27,7 @@ CREATE OR REPLACE TASK BRFSS.BRONZE.INGEST_BRFSS
 AS EXECUTE IMMEDIATE $$
 DECLARE
   started TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP();
+  failure_message STRING;
 BEGIN
   -- Load only files not loaded before (Snowflake remembers loaded files for 64 days).
   COPY INTO BRFSS.BRONZE.BRFSS_RAW
@@ -58,10 +59,13 @@ BEGIN
 EXCEPTION
   -- Pipeline failure email (the Databricks pipeline's on-update-failure notification):
   -- email the owner, then re-raise so the run still shows as FAILED in task history.
+  -- SQLERRM and SQLSTATE are scripting variables: they must be copied into a variable first and
+  -- passed to the CALL with a colon (:failure_message); used directly inside a SQL statement,
+  -- Snowflake reads them as column names and the handler itself fails.
   WHEN OTHER THEN
+    failure_message := 'Task BRFSS.BRONZE.INGEST_BRFSS failed: ' || SQLERRM || ' (SQLSTATE ' || SQLSTATE || ')';
     CALL SYSTEM$SEND_EMAIL('DEMO_EMAIL', 'isthismairaj@gmail.com',
-      'Snowflake BRFSS pipeline FAILED',
-      'Task BRFSS.BRONZE.INGEST_BRFSS failed: ' || SQLERRM || ' (SQLSTATE ' || SQLSTATE || ')');
+      'Snowflake BRFSS pipeline FAILED', :failure_message);
     RAISE;
 END;
 $$;
